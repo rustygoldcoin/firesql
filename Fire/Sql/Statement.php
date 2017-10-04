@@ -18,6 +18,9 @@ class Statement {
 
     static public function get($sqlStatement)
     {
+        if (!is_array(self::$_statements)) {
+            self::init();
+        }
         return self::$_statements[$sqlStatement];
     }
 

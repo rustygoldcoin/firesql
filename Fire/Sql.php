@@ -19,7 +19,6 @@ class Sql
 
     public function __construct(PDO $pdo)
     {
-        Statement::init();
         $this->_pdo = $pdo;
         $this->_collections = [];
         $this->_collectionsMeta = $this->_getCollectionsMeta();
