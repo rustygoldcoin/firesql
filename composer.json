@@ -1,0 +1,18 @@
+{
+    "name": "ua1-labs/firesql",
+    "description": "Bringing NoSQL to SQL",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joshua L Johnson",
+            "email": "josh@ua1.us"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Fire\\": "Fire/"
+        }
+    }
+}
