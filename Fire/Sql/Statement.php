@@ -2,7 +2,8 @@
 
 namespace Fire\Sql;
 
-class Statement {
+class Statement
+{
 
     static private $_statements;
 
@@ -22,14 +23,14 @@ class Statement {
         ];
     }
 
-    static public function get($sqlStatement, $replaceVars = [])
+    static public function get($sqlStatement, $variables = [])
     {
         if (!is_array(self::$_statements)) {
             self::init();
         }
         $sql = self::$_statements[$sqlStatement];
-        foreach ($replaceVars as $find => $replace) {
-            $sql = str_replace($find, $replace, $sql);
+        foreach ($variables as $variable => $value) {
+            $sql = str_replace($variable, $value, $sql);
         }
         return $sql;
     }

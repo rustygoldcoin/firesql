@@ -11,9 +11,12 @@ require_once __DIR__ . '/vendor/autoload.php';
 $pdo = new PDO('sqlite:' . __DIR__ . '/firesql.db');
 $db = new Fire\Sql($pdo);
 $myCollection = $db->collection('TestCollection');
-$myCollection->insert((object)[
+
+$object = (object)[
     'name' => 'Joshua Johnson'
-]);
+];
+
+$myCollection->insert($object);
 
 $time_end = microtime(true);
 $time = ($time_end - $time_start) * 1000;

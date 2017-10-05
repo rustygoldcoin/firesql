@@ -48,12 +48,22 @@ class Collection
 
     private function _upsert($object, $id = null)
     {
+        $object = $this->_writeObjectToDb($object, $id);
+        if ($this->_objectExists($object->__id)) {
+            $prevObject = $this->_getObject($object->__id);
+            $this->_removeIndexes($prevObject);
+        }
+        $this->_addIndexes($object);
+        $this->_updateObjectRevision($object->__id, $object->__revision);
+        return $object;
+    }
+
+    public function _writeObjectToDb($object, $id)
+    {
         $objectId = (!is_null($id)) ? $id : $this->_generateUniqueId();
-        $revision = $this->_generateRevisionNumber();
-        $created = $this->_generateTimestamp();
         $object->__id = $objectId;
-        $object->__revision = $revision;
-        $object->__timestamp = $created;
+        $object->__revision = $this->_generateRevisionNumber();
+        $object->__timestamp = $this->_generateTimestamp();
 
         //insert into database
         $statement = Statement::get(
