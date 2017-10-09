@@ -19,6 +19,11 @@ class Sql
     {
         $this->_pdo = $pdo;
         $this->_collections = [];
+
+        $statement = Statement::get('CREATE_OBJECT_TABLE');
+        var_dump($statement);
+        $this->_pdo->exec($statement);
+        var_dump($this->_pdo->errorInfo());
     }
 
     public function collection($name)
