@@ -10,21 +10,49 @@ class Statement
     static public function init()
     {
         self::$_statements = [
-            'CREATE_OBJECT_TABLE' =>
+            'CREATE_DB_TABLES' =>
                 'CREATE TABLE IF NOT EXISTS \'__object\' (' .
-                    'id TEXT NOT NULL,' .
-                    'version INTEGER NOT NULL' .
-                ');',
-            'CREATE_COLLECTION_TABLE' =>
-                'CREATE TABLE IF NOT EXISTS @collection (' .
-                    'id TEXT NOT NULL,' .
-                    'version INTEGER NOT NULL,' .
-                    'created TEXT NOT NULL,' .
+                    'collection TEXT NOT NULL, ' .
+                    'id TEXT NOT NULL, ' .
+                    'revision INTEGER NOT NULL, ' .
+                    'committed INTEGER NOT NULL, ' .
+                    'updated TEXT NOT NULL, ' .
+                    'origin TEXT NOT NULL, ' .
                     'obj BLOB NOT NULL' .
+                '); ' .
+                'CREATE TABLE IF NOT EXISTS \'__index\' (' .
+                    'hash TEXT NOT NULL, ' .
+                    'prop TEXT NOT NULL, ' .
+                    'val TEXT NOT NULL, ' .
+                    'collection TEXT NOT NULL, ' .
+                    'id TEXT NOT NULL, ' .
+                    'origin TEXT NOT NULL' .
                 ');',
-            'INSERT_OBJECT_INTO_COLLECTION' =>
-                'INSERT into @collection (id, version, created, obj) ' .
-                'VALUES (@id, @revision, @created, @obj)'
+            'DELETE_OBJECT_INDEX' =>
+                'DELETE FROM \'__index\' ' .
+                'WHERE id = @id;',
+            'GET_CURRENT_OBJECT' =>
+                'SELECT obj ' .
+                'FROM \'__object\'' .
+                'WHERE id = @id AND committed = 1 ' .
+                'ORDER BY updated DESC ' .
+                'LIMIT 1;',
+            'GET_OBJECT_ORIGIN_DATE' =>
+                'SELECT updated ' .
+                'FROM \'__object\'' .
+                'WHERE id = @id AND committed = 1 ' .
+                'ORDER BY updated ASC ' .
+                'LIMIT 1;',
+            'INSERT_OBJECT' =>
+                'INSERT INTO \'__object\' (collection, id, revision, committed, updated, origin, obj) ' .
+                'VALUES (@collection, @id, @revision, @committed, @updated, @origin, @obj);',
+            'INSERT_OBJECT_INDEX' =>
+                'INSERT INTO \'__index\' (hash, prop, val, collection, id, origin) ' .
+                'VALUES (@hash, @prop, @val, @collection, @id, @origin);',
+            'UPDATE_OBJECT_TO_COMMITTED' =>
+                'UPDATE \'__object\' ' .
+                'SET committed = 1 ' .
+                'WHERE id = @id;'
         ];
     }
 

@@ -13,10 +13,17 @@ $db = new Fire\Sql($pdo);
 $myCollection = $db->collection('TestCollection');
 
 $object = (object)[
-    'name' => 'Joshua Johnson'
+    'firstName' => 'Joshua',
+    'lastName' => 'Johnson',
+    'rand' => rand(1, 200)
 ];
 
 $myCollection->insert($object);
+$obj = $myCollection->find($object->__id);
+$obj->newStuff = true;
+$myCollection->update($obj->__id, $obj);
+$obj = $myCollection->find($obj->__id);
+var_dump($obj);
 
 $time_end = microtime(true);
 $time = ($time_end - $time_start) * 1000;
