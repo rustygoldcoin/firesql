@@ -160,13 +160,14 @@ class Collection
 
     private function _updateObjectIndexes($object)
     {
+        //delete all indexed references to this object
         $update = Statement::get(
             'DELETE_OBJECT_INDEX',
             [
                 '@id' => $this->_quote($object->__id)
             ]
         );
-
+        //parse each property of the object an attempt to index each value
         foreach (get_object_vars($object) as $property => $value) {
             if (
                 $this->_isPropertyIndexable($property)
@@ -186,6 +187,20 @@ class Collection
                 $update .= $insert;
             }
         }
+        //add the object registry index
+        $insert = Statement::get(
+            'INSERT_OBJECT_INDEX',
+            [
+                '@hash' => $this->_quote('registry'),
+                '@prop' => $this->_quote(''),
+                '@val' => $this->_quote(''),
+                '@collection' => $this->_quote($this->_name),
+                '@id' => $this->_quote($object->__id),
+                '@origin' => $this->_quote($object->__origin)
+            ]
+        );
+        $update .= $insert;
+        //execute all the sql to update indexes.
         $this->_exec($update);
     }
 
