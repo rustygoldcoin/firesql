@@ -21,7 +21,7 @@ class Statement
                     'obj BLOB NOT NULL' .
                 '); ' .
                 'CREATE TABLE IF NOT EXISTS \'__index\' (' .
-                    'hash TEXT NOT NULL, ' .
+                    'type TEXT NOT NULL, ' .
                     'prop TEXT NOT NULL, ' .
                     'val TEXT NOT NULL, ' .
                     'collection TEXT NOT NULL, ' .
@@ -43,12 +43,26 @@ class Statement
                 'WHERE id = @id AND committed = 1 ' .
                 'ORDER BY updated ASC ' .
                 'LIMIT 1;',
+            'GET_OBJECTS_BY_FILTER' =>
+                'SELECT id ' .
+                'FROM \'__index\' ' .
+                'WHERE collection = @collection ' .
+                'AND (@filters) ' .
+                'ORDER BY @order @reverse ' .
+                'LIMIT @length ' .
+                'OFFSET @offset;',
+            'GET_LOGIC_FILTER' =>
+                '@expression' .
+                '(' .
+                    'prop = @prop ' .
+                    'AND val @comparison @val' .
+                ')',
             'INSERT_OBJECT' =>
                 'INSERT INTO \'__object\' (collection, id, revision, committed, updated, origin, obj) ' .
                 'VALUES (@collection, @id, @revision, @committed, @updated, @origin, @obj);',
             'INSERT_OBJECT_INDEX' =>
-                'INSERT INTO \'__index\' (hash, prop, val, collection, id, origin) ' .
-                'VALUES (@hash, @prop, @val, @collection, @id, @origin);',
+                'INSERT INTO \'__index\' (type, prop, val, collection, id, origin) ' .
+                'VALUES (@type, @prop, @val, @collection, @id, @origin);',
             'UPDATE_OBJECT_TO_COMMITTED' =>
                 'UPDATE \'__object\' ' .
                 'SET committed = 1 ' .
@@ -69,5 +83,4 @@ class Statement
         }
         return $sql;
     }
-
 }

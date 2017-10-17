@@ -5,6 +5,7 @@ namespace Fire\Sql;
 use PDO;
 use DateTime;
 use Fire\Sql\Statement;
+use Fire\Sql\Filter;
 
 class Collection
 {
@@ -127,6 +128,40 @@ class Collection
         return ($record) ? $record['updated'] : null;
     }
 
+    private function _getObjectsByFilter(Filter $filterObj, $offset, $length, $reverseOrder)
+    {
+        $filterModel = $filterObj->getFilterModel();
+        $filters = '';
+        $i = 0;
+        foreach ($filterModel->filters as $filter) {
+            $filters .= Statement::get(
+                'GET_LOGIC_FILTER',
+                [
+                    '@expression' => ($i === 0) ? '' :  $filter->expression . ' ',
+                    '@comparison' => $filter->comparison,
+                    '@prop' => $this->_quote($filter->prop),
+                    '@val' => $this->_quote($filter->val)
+                ]
+            );
+            if (count($filterModel->filters) > $i + 1) {
+                $filters .= ' ';
+            }
+            $i++;
+        }
+        $select = Statement::get(
+            'GET_OBJECTS_BY_FILTER',
+            [
+                '@collection' => $this->_quote($this->_name),
+                '@filters' => $filters,
+                '@order' => $filterModel->order,
+                '@reverse' => ($filterModel->reverse) ? 'DESC' : 'ASC',
+                '@offset' => $filterModel->offset,
+                '@length' => $filterModel->length,
+            ]
+        );
+        var_dump($select);
+    }
+
     private function _isPropertyIndexable($property)
     {
         $indexBlacklist = ['__id', '__revision', '__updated', '__origin'];
@@ -153,11 +188,6 @@ class Collection
         return $this->_pdo->quote($value);
     }
 
-    private function _getObjectsByFilter($filter, $offset, $length, $reverseOrder)
-    {
-
-    }
-
     private function _updateObjectIndexes($object)
     {
         //delete all indexed references to this object
@@ -176,7 +206,7 @@ class Collection
                 $insert = Statement::get(
                     'INSERT_OBJECT_INDEX',
                     [
-                        '@hash' => $this->_quote(md5($this->_name . $property . $value)),
+                        '@type' => $this->_quote('value'),
                         '@prop' => $this->_quote($property),
                         '@val' => $this->_quote($value),
                         '@collection' => $this->_quote($this->_name),
@@ -191,7 +221,7 @@ class Collection
         $insert = Statement::get(
             'INSERT_OBJECT_INDEX',
             [
-                '@hash' => $this->_quote('registry'),
+                '@type' => $this->_quote('registry'),
                 '@prop' => $this->_quote(''),
                 '@val' => $this->_quote(''),
                 '@collection' => $this->_quote($this->_name),
