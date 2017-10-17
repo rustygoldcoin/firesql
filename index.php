@@ -10,20 +10,33 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 $pdo = new PDO('sqlite:' . __DIR__ . '/firesql.db');
 $db = new Fire\Sql($pdo);
-$myCollection = $db->collection('TestCollection');
+$collection = $db->collection('TestCollection');
 
-$object = (object)[
-    'firstName' => 'Joshua',
-    'lastName' => 'Johnson',
-    'rand' => rand(1, 200)
-];
+for ($i = 0; $i < 1000; $i++) {
+    $start = microtime(true);
+    $obj = (object) [
+       'index' => $i,
+       'firstName' => 'Joshua',
+       'lastName' => 'Joshua',
+       'email' => 'josh@ua1.us',
+       'phone' => '4075628773',
+       'rand' => rand(1,200)
+    ];
 
-$myCollection->insert($object);
-$obj = $myCollection->find($object->__id);
-$obj->newStuff = true;
-$myCollection->update($obj->__id, $obj);
-$obj = $myCollection->find($obj->__id);
-var_dump($obj);
+    $object = $collection->insert($obj);
+    var_dump($object);
+    $end = microtime(true);
+    $time = ($end - $start) * 1000;
+    echo 'doc#: ' . $i . ' docId: ' . $object->__id . ' time:' . $time . 'ms' . "\n";
+}
+
+// $filter = (object) [
+//     'rand' => 1
+// ];
+
+// $result = $test->find($filter, 0, 10, true);
+// var_dump($result);
+// var_dump(count($result));
 
 $time_end = microtime(true);
 $time = ($time_end - $time_start) * 1000;

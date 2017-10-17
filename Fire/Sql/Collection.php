@@ -51,7 +51,7 @@ class Collection
 
     public function insert($object)
     {
-        $this->_upsert($object, null);
+        return $this->_upsert($object, null);
     }
 
     public function update($id, $object)
