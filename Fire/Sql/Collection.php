@@ -186,7 +186,6 @@ class Collection
                 $update .= $insert;
             }
         }
-        var_dump($update);
         $this->_exec($update);
     }
 
