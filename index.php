@@ -13,8 +13,9 @@ $db = new Fire\Sql($pdo);
 $collection = $db->collection('TestCollection');
 
 $filter = new Fire\Sql\Filter();
-$filter->or('rand')->eq(199);
-
+$filter->where('rand')->eq(199);
+$filter->and('firstName')->eq('Josh');
+$filter->orderBy('firstName');
 // for ($i = 0; $i < 100; $i++) {
 //     $start = microtime(true);
 //     $obj = (object) [

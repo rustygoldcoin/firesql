@@ -9,6 +9,8 @@ use Fire\Sql\Filter\LogicExpression;
 
 class Filter {
 
+    private $_type;
+
     private $_filters;
 
     private $_order;
@@ -21,11 +23,12 @@ class Filter {
 
     public function __construct()
     {
+        $this->_type = 'value';
         $this->_filters = [];
         $this->_order = 'origin';
-        $this->_reverse = false;
+        $this->_reverse = true;
         $this->_offset = 0;
-        $this->_length = 10;
+        $this->_length = -1;
     }
 
     public function and($propertyName)
@@ -33,9 +36,10 @@ class Filter {
         return $this->_addLogic(new AndExpression($propertyName));
     }
 
-    public function getFilterModel()
+    public function filter()
     {
         return (object) [
+            'type' => $this->_type,
             'filters' => $this->_filters,
             'order' => $this->_order,
             'reverse' => $this->_reverse,
@@ -61,12 +65,23 @@ class Filter {
 
     public function orderBy($propertyName)
     {
-        $this->_order = $propertyname;
+        $this->_order = $propertyName;
+        $this->_addLogic(new LogicExpression($propertyName));
     }
 
     public function reverse($reverse)
     {
         $this->_reverse = $reverse;
+    }
+
+    public function type($type)
+    {
+        $this->_type = $type;
+    }
+
+    public function where($propertyName)
+    {
+        return $this->_addLogic(new AndExpression($propertyName));
     }
 
     private function _addLogic(LogicExpression $logicExpression) {

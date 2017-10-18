@@ -44,19 +44,14 @@ class Statement
                 'ORDER BY updated ASC ' .
                 'LIMIT 1;',
             'GET_OBJECTS_BY_FILTER' =>
-                'SELECT id ' .
-                'FROM \'__index\' ' .
-                'WHERE collection = @collection ' .
-                'AND (@filters) ' .
+                'SELECT A.id as id, A.type AS type, A.collection as collection, A.origin AS origin@columns ' .
+                'FROM \'__index\' AS A ' .
+                '@joinColumns' .
+                'WHERE collection = @collection AND type = @type @filters' .
+                'GROUP BY A.id ' .
                 'ORDER BY @order @reverse ' .
-                'LIMIT @length ' .
+                'LIMIT @limit ' .
                 'OFFSET @offset;',
-            'GET_LOGIC_FILTER' =>
-                '@expression' .
-                '(' .
-                    'prop = @prop ' .
-                    'AND val @comparison @val' .
-                ')',
             'INSERT_OBJECT' =>
                 'INSERT INTO \'__object\' (collection, id, revision, committed, updated, origin, obj) ' .
                 'VALUES (@collection, @id, @revision, @committed, @updated, @origin, @obj);',

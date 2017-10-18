@@ -76,6 +76,18 @@ class Collection
         return $this->_pdo->exec($statement);
     }
 
+    private function _generateAlphaToken()
+    {
+        $timestamp = strtotime($this->_generateTimestamp());
+        $characters = str_split('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        shuffle($characters);
+        $randomString = '';
+        foreach (str_split((string) $timestamp) as $num) {
+            $randomString .= $characters[$num];
+        }
+        return $randomString;
+    }
+
     private function _generateRevisionNumber()
     {
         return rand(1000001, 9999999);
@@ -128,38 +140,79 @@ class Collection
         return ($record) ? $record['updated'] : null;
     }
 
-    private function _getObjectsByFilter(Filter $filterObj, $offset, $length, $reverseOrder)
+    private function _getObjectsByFilter(Filter $filterQuery, $offset, $length, $reverseOrder)
     {
-        $filterModel = $filterObj->getFilterModel();
-        $filters = '';
-        $i = 0;
-        foreach ($filterModel->filters as $filter) {
-            $filters .= Statement::get(
-                'GET_LOGIC_FILTER',
-                [
-                    '@expression' => ($i === 0) ? '' :  $filter->expression . ' ',
-                    '@comparison' => $filter->comparison,
-                    '@prop' => $this->_quote($filter->prop),
-                    '@val' => $this->_quote($filter->val)
-                ]
-            );
-            if (count($filterModel->filters) > $i + 1) {
-                $filters .= ' ';
-            }
-            $i++;
+        $filter = $filterQuery->filter();
+
+        var_dump($filter);
+        $props = [];
+        $filters = []
+        foreach ($filter->filters as $applyFilter) {
+            $props[] = $applyFilter->prop;
         }
+
+        $props = array_unique($props);
+        $joins = [];
+        foreach ($props as $prop)
+        {
+            $asTbl = $this->_generateAlphaToken();
+            $joins[] =
+                'JOIN(' .
+                    'SELECT id, val as ' . $prop . ' ' .
+                    'FROM \'__index\' ' .
+                    'WHERE prop = \'' . $prop . '\'' .
+                ') AS ' . $asTbl . ' ' .
+                'ON A.id = ' . $asTbl . '.id';
+        }
+
         $select = Statement::get(
             'GET_OBJECTS_BY_FILTER',
             [
+                '@columns' => (count($props) > 0) ? ', ' . implode($props, ', ') : '',
+                '@joinColumns' => (count($joins) > 0) ? implode($joins, ' ') . ' ' : '',
                 '@collection' => $this->_quote($this->_name),
-                '@filters' => $filters,
-                '@order' => $filterModel->order,
-                '@reverse' => ($filterModel->reverse) ? 'DESC' : 'ASC',
-                '@offset' => $filterModel->offset,
-                '@length' => $filterModel->length,
+                '@type' => $this->_quote($filter->type),
+                '@filters' => ($filters) ? '(' . $filters . ') ' : '',
+                '@order' => $filter->order,
+                '@reverse' => ($filter->reverse) ? 'DESC' : 'ASC',
+                '@limit' => $filter->length,
+                '@offset' => $filter->offset
             ]
         );
-        var_dump($select);
+        echo $select;
+
+
+
+        exit();
+
+        // $filters = '';
+        // $i = 0;
+        // foreach ($filterModel->filters as $filter) {
+        //     $filters .= Statement::get(
+        //         'GET_LOGIC_FILTER',
+        //         [
+        //             '@expression' => ($i === 0) ? '' :  $filter->expression . ' ',
+        //             '@comparison' => $filter->comparison,
+        //             '@prop' => $this->_quote($filter->prop),
+        //             '@val' => $this->_quote($filter->val)
+        //         ]
+        //     );
+        //     if (count($filterModel->filters) > $i + 1) {
+        //         $filters .= ' ';
+        //     }
+        //     $i++;
+        // }
+        // $select = Statement::get(
+        //     'GET_OBJECTS_BY_FILTER',
+        //     [
+        //         '@collection' => $this->_quote($this->_name),
+        //         '@filters' => $filters,
+        //         '@order' => $filterModel->order,
+        //         '@reverse' => ($filterModel->reverse) ? 'DESC' : 'ASC',
+        //         '@offset' => $filterModel->offset,
+        //         '@length' => $filterModel->length,
+        //     ]
+        // );
     }
 
     private function _isPropertyIndexable($property)

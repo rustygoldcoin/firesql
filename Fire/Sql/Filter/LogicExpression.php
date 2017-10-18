@@ -2,7 +2,7 @@
 
 namespace Fire\Sql\Filter;
 
-abstract class LogicExpression {
+class LogicExpression {
 
     public $expression;
 
