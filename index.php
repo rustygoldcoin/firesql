@@ -12,11 +12,7 @@ $pdo = new PDO('sqlite:' . __DIR__ . '/firesql.db');
 $db = new Fire\Sql($pdo);
 $collection = $db->collection('TestCollection');
 
-$filter = new Fire\Sql\Filter();
-$filter->where('rand')->eq(199);
-$filter->and('firstName')->eq('Josh');
-$filter->orderBy('firstName');
-// for ($i = 0; $i < 100; $i++) {
+// for ($i = 0; $i < 5000; $i++) {
 //     $start = microtime(true);
 //     $obj = (object) [
 //        'index' => $i,
@@ -34,11 +30,12 @@ $filter->orderBy('firstName');
 //     echo 'doc#: ' . $i . ' docId: ' . $object->__id . ' time:' . $time . 'ms' . "\n";
 // }
 
-// $filter = (object) [
-//     'rand' => 1
-// ];
-//
-$result = $collection->find($filter, 0, 10, true);
+$filter = new Fire\Sql\Filter();
+$filter->where('rand')->gt(3);
+$filter->and('rand')->lt(10);
+$filter->orderBy('index');
+
+$result = $collection->find($filter);
 var_dump($result);
 var_dump(count($result));
 

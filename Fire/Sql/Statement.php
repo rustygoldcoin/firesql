@@ -44,7 +44,11 @@ class Statement
                 'ORDER BY updated ASC ' .
                 'LIMIT 1;',
             'GET_OBJECTS_BY_FILTER' =>
-                'SELECT A.id as id, A.type AS type, A.collection as collection, A.origin AS origin@columns ' .
+                'SELECT A.id as __id, ' .
+                'A.type AS __type, ' .
+                'A.collection as __collection, ' .
+                'A.origin AS __origin' .
+                '@columns ' .
                 'FROM \'__index\' AS A ' .
                 '@joinColumns' .
                 'WHERE collection = @collection AND type = @type @filters' .

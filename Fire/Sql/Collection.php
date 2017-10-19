@@ -38,14 +38,12 @@ class Collection
 
     }
 
-    public function find($filter = null, $offset = 0, $length = 10, $reverseOrder = true)
+    public function find($filter = null)
     {
         if (is_string($filter)) {
             return $this->_getObject($filter);
-        } else if (is_object($filter)) {
-            return $this->_getObjectsByFilter($filter, $offset, $length, $reverseOrder);
-        } else if (is_null($filter)) {
-            //return $this->_query->getAllDocuments($offset, $length, $reverseOrder);
+        } else if (is_object($filter) && $filter instanceof Filter) {
+            return $this->_getObjectsByFilter($filter);
         }
         return null;
     }
@@ -140,29 +138,42 @@ class Collection
         return ($record) ? $record['updated'] : null;
     }
 
-    private function _getObjectsByFilter(Filter $filterQuery, $offset, $length, $reverseOrder)
+    private function _getObjectsByFilter(Filter $filterQuery)
     {
         $filter = $filterQuery->filter();
-
-        var_dump($filter);
         $props = [];
-        $filters = []
+        $filters = [];
         foreach ($filter->filters as $applyFilter) {
             $props[] = $applyFilter->prop;
+            if ($applyFilter->expression && $applyFilter->comparison && $applyFilter->prop) {
+                $expression = ($applyFilter->expression !== 'WHERE') ? $applyFilter->expression . ' ' : '';
+                $prop = is_int($applyFilter->val) ? 'CAST(' . $applyFilter->prop . ' AS INT)' : $applyFilter->prop;
+                $comparison = $applyFilter->comparison;
+                $value = (!isset($applyFilter->val) || is_null($applyFilter->val)) ? 'NULL' : $applyFilter->val;
+                $filters[] = $expression . $prop . ' ' . $comparison . ' \'' . $value . '\'';
+            }
         }
 
         $props = array_unique($props);
         $joins = [];
         foreach ($props as $prop)
         {
-            $asTbl = $this->_generateAlphaToken();
-            $joins[] =
-                'JOIN(' .
-                    'SELECT id, val as ' . $prop . ' ' .
-                    'FROM \'__index\' ' .
-                    'WHERE prop = \'' . $prop . '\'' .
-                ') AS ' . $asTbl . ' ' .
-                'ON A.id = ' . $asTbl . '.id';
+            $standardFields = [
+                '__id',
+                '__type',
+                '__collection',
+                '__origin'
+            ];
+            if (!in_array($prop, $standardFields)) {
+                $asTbl = $this->_generateAlphaToken();
+                $joins[] =
+                    'JOIN(' .
+                        'SELECT id, val as ' . $prop . ' ' .
+                        'FROM \'__index\' ' .
+                        'WHERE prop = \'' . $prop . '\'' .
+                    ') AS ' . $asTbl . ' ' .
+                    'ON A.id = ' . $asTbl . '.id';
+            }
         }
 
         $select = Statement::get(
@@ -172,7 +183,7 @@ class Collection
                 '@joinColumns' => (count($joins) > 0) ? implode($joins, ' ') . ' ' : '',
                 '@collection' => $this->_quote($this->_name),
                 '@type' => $this->_quote($filter->type),
-                '@filters' => ($filters) ? '(' . $filters . ') ' : '',
+                '@filters' => ($filters) ? 'AND (' . implode($filters, ' ') . ') ' : '',
                 '@order' => $filter->order,
                 '@reverse' => ($filter->reverse) ? 'DESC' : 'ASC',
                 '@limit' => $filter->length,
@@ -180,39 +191,8 @@ class Collection
             ]
         );
         echo $select;
-
-
-
-        exit();
-
-        // $filters = '';
-        // $i = 0;
-        // foreach ($filterModel->filters as $filter) {
-        //     $filters .= Statement::get(
-        //         'GET_LOGIC_FILTER',
-        //         [
-        //             '@expression' => ($i === 0) ? '' :  $filter->expression . ' ',
-        //             '@comparison' => $filter->comparison,
-        //             '@prop' => $this->_quote($filter->prop),
-        //             '@val' => $this->_quote($filter->val)
-        //         ]
-        //     );
-        //     if (count($filterModel->filters) > $i + 1) {
-        //         $filters .= ' ';
-        //     }
-        //     $i++;
-        // }
-        // $select = Statement::get(
-        //     'GET_OBJECTS_BY_FILTER',
-        //     [
-        //         '@collection' => $this->_quote($this->_name),
-        //         '@filters' => $filters,
-        //         '@order' => $filterModel->order,
-        //         '@reverse' => ($filterModel->reverse) ? 'DESC' : 'ASC',
-        //         '@offset' => $filterModel->offset,
-        //         '@length' => $filterModel->length,
-        //     ]
-        // );
+        $records = $this->_query($select)->fetchAll();
+        return ($records) ? array_map([$this, '_mapObjectIds'], $records) : null;
     }
 
     private function _isPropertyIndexable($property)
@@ -229,6 +209,11 @@ class Collection
             || is_bool($value)
             || is_integer($value)
         );
+    }
+
+    private function _mapObjectIds($record)
+    {
+        return $this->_getObject($record['__id']);
     }
 
     private function _query($statement)

@@ -5,6 +5,7 @@ namespace Fire\Sql;
 use Fire\Sql\Statement;
 use Fire\Sql\Filter\AndExpression;
 use Fire\Sql\Filter\OrExpression;
+use Fire\Sql\Filter\WhereExpression;
 use Fire\Sql\Filter\LogicExpression;
 
 class Filter {
@@ -23,9 +24,9 @@ class Filter {
 
     public function __construct()
     {
-        $this->_type = 'value';
+        $this->_type = 'registry';
         $this->_filters = [];
-        $this->_order = 'origin';
+        $this->_order = '__origin';
         $this->_reverse = true;
         $this->_offset = 0;
         $this->_length = -1;
@@ -81,7 +82,8 @@ class Filter {
 
     public function where($propertyName)
     {
-        return $this->_addLogic(new AndExpression($propertyName));
+        $this->type('value');
+        return $this->_addLogic(new WhereExpression($propertyName));
     }
 
     private function _addLogic(LogicExpression $logicExpression) {
