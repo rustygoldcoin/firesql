@@ -28,6 +28,9 @@ class Statement
                     'id TEXT NOT NULL, ' .
                     'origin TEXT NOT NULL' .
                 ');',
+            'DELETE_OBJECT' =>
+                'DELETE FROM \'__object\' ' .
+                'WHERE id = @id;',
             'DELETE_OBJECT_INDEX' =>
                 'DELETE FROM \'__index\' ' .
                 'WHERE id = @id;',

@@ -35,7 +35,20 @@ class Collection
 
     public function delete($id)
     {
+        $delete = Statement::get(
+            'DELETE_OBJECT_INDEX',
+            [
+                '@id' => $this->_quote($id)
+            ]
+        );
+        $delete .= Statement::get(
+            'DELETE_OBJECT',
+            [
+                '@id' => $this->_quote($id)
+            ]
+        );
 
+        $this->_exec($delete);
     }
 
     public function find($filter = null)

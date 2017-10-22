@@ -30,12 +30,13 @@ $collection = $db->collection('TestCollection');
 //     echo 'doc#: ' . $i . ' docId: ' . $object->__id . ' time:' . $time . 'ms' . "\n";
 // }
 
-$filter = new Fire\Sql\Filter();
-$filter->where('rand')->gt(3);
-$filter->and('rand')->lt(10);
-$filter->orderBy('index');
-
-$result = $collection->find($filter);
+// $filter = new Fire\Sql\Filter();
+// $filter->where('rand')->gt(3);
+// $filter->and('rand')->lt(10);
+// $filter->orderBy('index');
+//
+// $result = $collection->find($filter);
+$collection->delete('134c7c11af8f5194aa06e01de43daca5f4e18170');
 var_dump($result);
 var_dump(count($result));
 
