@@ -64,7 +64,7 @@ class Filter {
         $this->_offset = $offset;
     }
 
-    public function orderBy($propertyName)
+    public function orderby($propertyName)
     {
         $this->_order = $propertyName;
         $this->_addLogic(new LogicExpression($propertyName));
