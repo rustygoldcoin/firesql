@@ -1,0 +1,11 @@
+<?php if (!empty($this->_debuggers)) { ?>
+    <div class="fs-section fs-debugger-statements closed">
+        <h3 class="fs-title">Debuggers<span class="fs-openCloseBtn"></span></h3>
+        <div class="fs-content">
+            <?php foreach ($this->_debuggers as $debugger) { ?>
+                <span class="fs-label">Debugger in file <?php echo $debugger->trace['file'] ?> on line <?php echo $debugger->trace['line']; ?></span>
+                <pre class="debugger"><?php echo var_dump($debugger->message); ?></pre>
+            <?php } ?>
+        </div>
+    </div>
+<?php } ?>

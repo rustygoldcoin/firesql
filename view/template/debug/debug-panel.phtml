@@ -1,0 +1,116 @@
+<style type="text/css">
+    /**
+     * Global
+     */
+    .fs-debug-panel {
+        margin: 10px;
+        padding: 20px 20px;
+        border-radius: 15px;
+        background-color: #464646;
+        color: #ececec;
+        display: block;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 14px;
+        line-height: 16px;
+        overflow: hidden;
+    }
+    .fs-debug-panel h1.fs-title {
+        margin: 0;
+        font-size: 32px;
+        line-height: 35px;
+    }
+    .fs-debug-panel h3.fs-title {
+        margin: 0 0 15px 0;
+        font-size: 22px;
+        line-height: 24px;
+    }
+    .fs-debug-panel .fs-label {
+        display: block;
+        margin: 0 0 5px 0;
+    }
+    .fs-debug-panel .fs-openCloseBtn {
+        color: #5178f1;
+        cursor: pointer;
+    }
+    .fs-debug-panel pre {
+        color: #464646;
+        border: 1px dotted;
+        padding: 20px;
+        margin: 0 0 10px 0;
+        overflow-x: scroll;
+    }
+    .fs-debug-panel table {
+        color: #464646;
+        width: 100%;
+        border: 1px solid;
+        border-collapse: collapse;
+        margin: 0 0 10px 0;
+    }
+    .fs-debug-panel table th {
+        font-weight: bold;
+    }
+    .fs-debug-panel table th,
+    .fs-debug-panel table td {
+        border: 1px solid;
+        text-align: left;
+        padding: 5px;
+    }
+    /**
+     * Section
+     */
+    .fs-debug-panel .fs-section {
+        margin: 15px 0 0 0;
+        background: #ececec;
+        color: #464646;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    /**
+     * Section Closed
+     */
+    .fs-debug-panel .fs-section.closed .fs-content {
+        display: none;
+    }
+    .fs-debug-panel .fs-section.closed h3.fs-title {
+        margin-bottom: 0;
+    }
+</style>
+
+<script type="text/javascript">
+    (function(){
+        document.addEventListener('DOMContentLoaded', function () {
+            var openCloseBtns = document.querySelectorAll('.fs-openCloseBtn');
+            var button;
+            var section;
+            for (i = 0; i < openCloseBtns.length; i++) {
+                button = openCloseBtns[i];
+                section = button.parentElement.parentElement;
+                if (section.classList.contains('closed')) {
+                    button.innerHTML = '(+)';
+                } else {
+                    button.innerHTML = '(-)';
+                }
+                button.onclick = function () {
+                    var button = this;
+                    var section = button.parentElement.parentElement;
+                    if (section.classList.contains('closed')) {
+                        section.classList.remove('closed')
+                        button.innerHTML = '(-)';
+                    } else {
+                        section.classList.add('closed')
+                        button.innerHTML = '(+)';
+                    }
+                }
+            }
+        });
+    })();
+</script>
+
+<div class="fs-debug-panel">
+    <h1 class="fs-title">FireBug Panel</h1>
+    <?php
+        foreach ($this->_panels as $panel) {
+            $this->panel($panel);
+        }
+    ?>
+</div>
