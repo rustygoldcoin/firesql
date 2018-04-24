@@ -6,6 +6,9 @@ use PDO;
 use DateTime;
 use Fire\Sql\Statement;
 use Fire\Sql\Filter;
+use Fire\Bug;
+use Fire\Bug\Panel\FireSqlPanel;
+use Fire\Bug\SqlStatement;
 
 class Collection
 {
@@ -22,6 +25,8 @@ class Collection
      */
     private $_name;
 
+    private $_firebug;
+
     /**
      * Creates an instance of a new collection.
      * @param String $name The name of the collection
@@ -29,8 +34,9 @@ class Collection
      */
     public function __construct($name, PDO $pdo)
     {
-        $this->_name = $name;
         $this->_pdo = $pdo;
+        $this->_name = $name;
+        $this->_firebug = Bug::get();
     }
 
     public function delete($id)
@@ -84,7 +90,15 @@ class Collection
 
     private function _exec($statement)
     {
-        return $this->_pdo->exec($statement);
+        $start = $this->_firebug->timer();
+        $sqlStatement = new SqlStatement();
+        $sqlStatement->setStatement($statement);
+        $this->_pdo->exec($statement);
+        $sqlStatement->setTime($this->_firebug->timer($start));
+        $this->_firebug
+            ->getPanel(FireSqlPanel::ID)
+            ->addSqlStatement($sqlStatement);
+
     }
 
     private function _generateAlphaToken()

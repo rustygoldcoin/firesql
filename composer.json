@@ -5,12 +5,20 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Joshua L Johnson",
-            "email": "josh@ua1.us"
+            "name": "UA1 Labs",
+            "email": "development@ua1.us"
         }
     ],
-    "require": {},
+    "require": {
+        "ua1-labs/firebug": "dev-master"
+    },
+    "require-dev": {
+        "ua1-labs/firetest": "dev-master"
+    },
     "autoload": {
+        "files": [
+            "init.php"
+        ],
         "psr-4": {
             "Fire\\": "Fire/"
         }
