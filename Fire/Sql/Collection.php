@@ -2,22 +2,19 @@
 
 namespace Fire\Sql;
 
-use PDO;
-use DateTime;
-use Fire\Sql\Statement;
-use Fire\Sql\Filter;
-use Fire\Bug;
-use Fire\Bug\Panel\FireSqlPanel;
-use Fire\Bug\SqlStatement;
+use \DateTime;
+use \Fire\Sql\Statement;
+use \Fire\Sql\Filter;
+use \Fire\Sql\Connector;
 
 class Collection
 {
 
     /**
      * The connection to the database.
-     * @var PDO
+     * @var \Fire\Sql\Connector
      */
-    private $_pdo;
+    private $_connector;
 
     /**
      * The name of the collection.
@@ -25,18 +22,15 @@ class Collection
      */
     private $_name;
 
-    private $_firebug;
-
     /**
      * Creates an instance of a new collection.
      * @param String $name The name of the collection
      * @param PDO $pdo The connection to the database
      */
-    public function __construct($name, PDO $pdo)
+    public function __construct($name, Connector $connector)
     {
-        $this->_pdo = $pdo;
+        $this->_connector = $connector;
         $this->_name = $name;
-        $this->_firebug = Bug::get();
     }
 
     public function delete($id)
@@ -44,17 +38,17 @@ class Collection
         $delete = Statement::get(
             'DELETE_OBJECT_INDEX',
             [
-                '@id' => $this->_quote($id)
+                '@id' => $this->_connector->quote($id)
             ]
         );
         $delete .= Statement::get(
             'DELETE_OBJECT',
             [
-                '@id' => $this->_quote($id)
+                '@id' => $this->_connector->quote($id)
             ]
         );
 
-        $this->_exec($delete);
+        $this->_connector->exec($delete);
     }
 
     public function find($filter = null)
@@ -82,23 +76,10 @@ class Collection
         $update = Statement::get(
             'UPDATE_OBJECT_TO_COMMITTED',
             [
-                '@id' => $this->_quote($id)
+                '@id' => $this->_connector->quote($id)
             ]
         );
-        $this->_exec($update);
-    }
-
-    private function _exec($statement)
-    {
-        $start = $this->_firebug->timer();
-        $sqlStatement = new SqlStatement();
-        $sqlStatement->setStatement($statement);
-        $this->_pdo->exec($statement);
-        $sqlStatement->setTime($this->_firebug->timer($start));
-        $this->_firebug
-            ->getPanel(FireSqlPanel::ID)
-            ->addSqlStatement($sqlStatement);
-
+        $this->_connector->exec($update);
     }
 
     private function _generateAlphaToken()
@@ -141,10 +122,10 @@ class Collection
             $select = Statement::get(
                 'GET_CURRENT_OBJECT',
                 [
-                    '@id' => $this->_quote($id)
+                    '@id' => $this->_connector->quote($id)
                 ]
             );
-            $record = $this->_query($select)->fetch();
+            $record = $this->_connector->query($select)->fetch();
             if ($record) {
                 return json_decode($record['obj']);
             }
@@ -158,10 +139,10 @@ class Collection
         $select = Statement::get(
             'GET_OBJECT_ORIGIN_DATE',
             [
-                '@id' => $this->_quote($id)
+                '@id' => $this->_connector->quote($id)
             ]
         );
-        $record = $this->_query($select)->fetch();
+        $record = $this->_connector->query($select)->fetch();
         return ($record) ? $record['updated'] : null;
     }
 
@@ -208,8 +189,8 @@ class Collection
             [
                 '@columns' => (count($props) > 0) ? ', ' . implode($props, ', ') : '',
                 '@joinColumns' => (count($joins) > 0) ? implode($joins, ' ') . ' ' : '',
-                '@collection' => $this->_quote($this->_name),
-                '@type' => $this->_quote($filter->type),
+                '@collection' => $this->_connector->quote($this->_name),
+                '@type' => $this->_connector->quote($filter->type),
                 '@filters' => ($filters) ? 'AND (' . implode($filters, ' ') . ') ' : '',
                 '@order' => $filter->order,
                 '@reverse' => ($filter->reverse) ? 'DESC' : 'ASC',
@@ -217,8 +198,7 @@ class Collection
                 '@offset' => $filter->offset
             ]
         );
-        echo $select;
-        $records = $this->_query($select)->fetchAll();
+        $records = $this->_connector->query($select)->fetchAll();
         return ($records) ? array_map([$this, '_mapObjectIds'], $records) : null;
     }
 
@@ -243,23 +223,13 @@ class Collection
         return $this->_getObject($record['__id']);
     }
 
-    private function _query($statement)
-    {
-        return $this->_pdo->query($statement);
-    }
-
-    private function _quote($value)
-    {
-        return $this->_pdo->quote($value);
-    }
-
     private function _updateObjectIndexes($object)
     {
         //delete all indexed references to this object
         $update = Statement::get(
             'DELETE_OBJECT_INDEX',
             [
-                '@id' => $this->_quote($object->__id)
+                '@id' => $this->_connector->quote($object->__id)
             ]
         );
         //parse each property of the object an attempt to index each value
@@ -271,12 +241,12 @@ class Collection
                 $insert = Statement::get(
                     'INSERT_OBJECT_INDEX',
                     [
-                        '@type' => $this->_quote('value'),
-                        '@prop' => $this->_quote($property),
-                        '@val' => $this->_quote($value),
-                        '@collection' => $this->_quote($this->_name),
-                        '@id' => $this->_quote($object->__id),
-                        '@origin' => $this->_quote($object->__origin)
+                        '@type' => $this->_connector->quote('value'),
+                        '@prop' => $this->_connector->quote($property),
+                        '@val' => $this->_connector->quote($value),
+                        '@collection' => $this->_connector->quote($this->_name),
+                        '@id' => $this->_connector->quote($object->__id),
+                        '@origin' => $this->_connector->quote($object->__origin)
                     ]
                 );
                 $update .= $insert;
@@ -286,17 +256,17 @@ class Collection
         $insert = Statement::get(
             'INSERT_OBJECT_INDEX',
             [
-                '@type' => $this->_quote('registry'),
-                '@prop' => $this->_quote(''),
-                '@val' => $this->_quote(''),
-                '@collection' => $this->_quote($this->_name),
-                '@id' => $this->_quote($object->__id),
-                '@origin' => $this->_quote($object->__origin)
+                '@type' => $this->_connector->quote('registry'),
+                '@prop' => $this->_connector->quote(''),
+                '@val' => $this->_connector->quote(''),
+                '@collection' => $this->_connector->quote($this->_name),
+                '@id' => $this->_connector->quote($object->__id),
+                '@origin' => $this->_connector->quote($object->__origin)
             ]
         );
         $update .= $insert;
         //execute all the sql to update indexes.
-        $this->_exec($update);
+        $this->_connector->exec($update);
     }
 
     private function _upsert($object, $id = null)
@@ -320,16 +290,16 @@ class Collection
         $insert = Statement::get(
             'INSERT_OBJECT',
             [
-                '@collection' => $this->_quote($this->_name),
-                '@id' => $this->_quote($object->__id),
-                '@revision' => $this->_quote($object->__revision),
-                '@committed' => $this->_quote(0),
-                '@updated' => $this->_quote($object->__updated),
-                '@origin' => $this->_quote($object->__origin),
-                '@obj' => $this->_quote(json_encode($object))
+                '@collection' => $this->_connector->quote($this->_name),
+                '@id' => $this->_connector->quote($object->__id),
+                '@revision' => $this->_connector->quote($object->__revision),
+                '@committed' => $this->_connector->quote(0),
+                '@updated' => $this->_connector->quote($object->__updated),
+                '@origin' => $this->_connector->quote($object->__origin),
+                '@obj' => $this->_connector->quote(json_encode($object))
             ]
         );
-        $this->_exec($insert);
+        $this->_connector->exec($insert);
         return $object;
     }
 }

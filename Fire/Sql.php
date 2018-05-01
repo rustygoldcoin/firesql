@@ -2,43 +2,30 @@
 
 namespace Fire;
 
-use PDO;
-use Fire\FireSqlException;
-use Fire\Sql\Collection;
-use Fire\Sql\Statement;
-use Fire\Bug;
-use Fire\Bug\Panel\FireSqlPanel;
-use Fire\Bug\SqlStatement;
+use \PDO;
+use \Fire\Sql\Connector;
+use \Fire\Sql\Collection;
+use \Fire\Sql\Statement;
 
 class Sql
 {
-    private $_pdo;
 
     private $_collections;
 
-    private $_firebug;
+    private $_connector;
 
     public function __construct(PDO $pdo)
     {
-        $this->_pdo = $pdo;
+        $this->_connector = new Connector($pdo);
         $this->_collections = [];
-        $this->_firebug = Bug::get();
-
         $createTables = Statement::get('CREATE_DB_TABLES');
-        $start = $this->_firebug->timer();
-        $sqlStatement = new SqlStatement();
-        $sqlStatement->setStatement($createTables);
-        $this->_pdo->exec($createTables);
-        $sqlStatement->setTime($this->_firebug->timer($start));
-        $this->_firebug
-            ->getPanel(FireSqlPanel::ID)
-            ->addSqlStatement($sqlStatement);
+        $this->_connector->exec($createTables);
     }
 
     public function collection($name)
     {
         if (!isset($this->_collections[$name])) {
-            $this->_collections[$name] = new Collection($name, $this->_pdo);
+            $this->_collections[$name] = new Collection($name, $this->_connector);
         }
 
         return $this->_collections[$name];

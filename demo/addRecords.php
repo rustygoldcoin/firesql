@@ -7,7 +7,7 @@ set_time_limit(0);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $firebug = Fire\Bug::get();
-$firebug->startTimer();
+$firebug->enable();
 
 $pdo = new PDO('sqlite:' . __DIR__ . '/demo.db');
 $db = new Fire\Sql($pdo);
