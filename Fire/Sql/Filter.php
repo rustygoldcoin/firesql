@@ -16,18 +16,29 @@ class Filter {
     const INDEX_SEARCH_TYPE_REGISTRY = 'registry';
     const COMPARISON_LOGIC_AND = 'and';
     const COMPARISON_LOGIC_OR = 'or';
+    const COMPARISON_LOGIC_WHERE = 'where';
     const COMPARISON_TYPE_EQUAL = '=';
     const COMPARISON_TYPE_NOT_EQUAL = '<>';
     const COMPARISON_TYPE_GREATERTHAN = '>';
     const COMPARISON_TYPE_GREATERTHAN_EQUAL = '>=';
     const COMPARISON_TYPE_LESSTHAN = '<';
     const COMPARISON_TYPE_LESSTHAN_EQUAL = '<=';
+    const FILTER_CONFIG_LENGTH = 'length';
+    const FILTER_CONFIG_OFFSET = 'offset';
+    const FILTER_CONFIG_ORDER_BY = 'order';
+    const FILTER_CONFIG_REVERSE = 'reverse';
+    const METHOD_LOGIC_TYPE_EQUAL = 'eq';
+    const METHOD_LOGIC_TYPE_NOT_EQUAL = 'not';
+    const METHOD_LOGIC_TYPE_GREATERTHAN = 'gt';
+    const METHOD_LOGIC_TYPE_GREATERTHAN_EQUAL = 'gteq';
+    const METHOD_LOGIC_TYPE_LESSTHAN = 'lt';
+    const METHOD_LOGIC_TYPE_LESSTHAN_EQUAL = 'lteq';
 
-    private $_type;
+    private $_indexType;
 
-    private $_filters;
+    private $_comparisons;
 
-    private $_order;
+    private $_orderBy;
 
     private $_reverse;
 
@@ -37,43 +48,37 @@ class Filter {
 
     public function __construct($queryString = null)
     {
-        $this->_type = self::INDEX_SEARCH_TYPE_REGISTRY;
-        $this->_filters = [];
-        $this->_order = '__origin';
+        $this->_indexType = self::INDEX_SEARCH_TYPE_REGISTRY;
+        $this->_comparisons = [];
+        $this->_orderBy = '__origin';
         $this->_reverse = true;
         $this->_offset = 0;
         $this->_length = -1;
         if (!empty($queryString)) {
-            $this->type(self::INDEX_SEARCH_TYPE_VALUE);
+            $this->indexType(self::INDEX_SEARCH_TYPE_VALUE);
             $this->_parseQueryString($queryString);
         }
     }
 
+    public function where($propertyName)
+    {
+        $this->indexType(self::INDEX_SEARCH_TYPE_VALUE);
+        return $this->_addComparison(new WhereExpression($propertyName));
+    }
+
     public function and($propertyName)
     {
-        return $this->_addLogic(new AndExpression($propertyName));
-    }
-
-    public function filter()
-    {
-        return (object) [
-            'type' => $this->_type,
-            'filters' => $this->_filters,
-            'order' => $this->_order,
-            'reverse' => $this->_reverse,
-            'offset' => $this->_offset,
-            'length' => $this->_length
-        ];
-    }
-
-    public function length($length)
-    {
-        $this->_length = $length;
+        return $this->_addComparison(new AndExpression($propertyName));
     }
 
     public function or($propertyName)
     {
-        return $this->_addLogic(new OrExpression($propertyName));
+        return $this->_addComparison(new OrExpression($propertyName));
+    }
+
+    public function getComparisons()
+    {
+        return $this->_comparisons;
     }
 
     public function offset($offset)
@@ -81,10 +86,30 @@ class Filter {
         $this->_offset = $offset;
     }
 
-    public function orderby($propertyName)
+    public function getOffset()
     {
-        $this->_order = $propertyName;
-        $this->_addLogic(new LogicExpression($propertyName));
+        return $this->_offset;
+    }
+
+    public function length($length)
+    {
+        $this->_length = $length;
+    }
+
+    public function getLength()
+    {
+        return $this->_length;
+    }
+
+    public function orderBy($propertyName)
+    {
+        $this->_orderBy = $propertyName;
+        $this->_addComparison(new LogicExpression($propertyName));
+    }
+
+    public function getOrderBy()
+    {
+        return $this->_orderBy;
     }
 
     public function reverse($reverse)
@@ -92,78 +117,166 @@ class Filter {
         $this->_reverse = $reverse;
     }
 
-    public function type($type)
+    public function getReverse()
     {
-        $this->_type = $type;
+        return $this->_reverse;
     }
 
-    public function where($propertyName)
+    public function indexType($type)
     {
-        $this->type(self::INDEX_SEARCH_TYPE_VALUE);
-        return $this->_addLogic(new WhereExpression($propertyName));
+        $this->_indexType = $type;
     }
 
-    private function _addLogic(LogicExpression $logicExpression) {
-        $this->_filters[] = $logicExpression;
-        end($this->_filters);
-        $i = key($this->_filters);
-        return $this->_filters[$i];
+    public function getIndexType()
+    {
+        return $this->_indexType;
     }
 
-    private function _parseQueryString($str)
+    public function filter()
     {
-        $query = json_decode($str);
-        if (!$query) {
-            throw new SqlException('There was an error parsing your filter query string.');
+        return (object) [
+            'type' => $this->_indexType,
+            'filters' => $this->_comparisons,
+            'order' => $this->_orderBy,
+            'reverse' => $this->_reverse,
+            'offset' => $this->_offset,
+            'length' => $this->_length
+        ];
+    }
+
+    private function _addComparison(LogicExpression $logicExpression) {
+        $this->_comparisons[] = $logicExpression;
+        end($this->_comparisons);
+        $i = key($this->_comparisons);
+        return $this->_comparisons[$i];
+    }
+
+    private function _parseQueryString($queryString)
+    {
+        $queryObjs = json_decode($queryString);
+        if (!$queryObjs) {
+            throw new SqlException(
+                'There was an error parsing your filter query string. '
+                . 'The filter query must be in the format of a JSON object.'
+            );
         }
 
-        foreach ($query as $prop => $val) {
-            if (is_array($val)) {
-                foreach ($val as $comparison) {
-                    $compare = $this->_extractComparisonTypeAndValue($comparison);
-                    $method = $compare->type;
-                    $val = $compare->value;
-                    $this->_configureComparison(self::COMPARISON_LOGIC_AND, $method, $prop, $val);
+        //inject a single object into an array.
+        if (!is_array($queryObjs)) {
+            $queryObj = $queryObjs;
+            $queryObjs = [];
+            $queryObjs[] = $queryObj;
+        }
+
+        $firstObj = true;
+        foreach ($queryObjs as $queryObj) {
+            $firstProperty = true;
+            foreach ($queryObj as $prop => $val) {
+                if (is_array($val)) {
+                    foreach ($val as $comparison) {
+                        if ($firstObj && $firstProperty) {
+                            $this->_parseComparison(self::COMPARISON_LOGIC_WHERE, $prop, $comparison);
+                        } else if (!$firstObj && $firstProperty) {
+                            $this->_parseComparison(self::COMPARISON_LOGIC_OR, $prop, $comparison);
+                        } else {
+                            $this->_parseComparison(self::COMPARISON_LOGIC_AND, $prop, $comparison);
+                        }
+                    }
+                } else {
+                    if ($firstObj && $firstProperty) {
+                        $this->_parseComparison(self::COMPARISON_LOGIC_WHERE, $prop, $val);
+                    } else if (!$firstObj && $firstProperty) {
+                        $this->_parseComparison(self::COMPARISON_LOGIC_OR, $prop, $val);
+                    } else {
+                        $this->_parseComparison(self::COMPARISON_LOGIC_AND, $prop, $val);
+                    }
                 }
+                $firstProperty = false;
             }
+            $firstObj = false;
+        }
+    }
+
+    private function _addFilterComparison($firstObj, $firstProperty, $property, $value)
+    {
+        if ($firstObj && $firstProperty) {
+            $this->_parseComparison(self::COMPARISON_LOGIC_WHERE, $property, $value);
+        } else if (!$firstObj && $firstProperty) {
+            $this->_parseComparison(self::COMPARISON_LOGIC_OR, $property, $value);
+        } else {
+            $this->_parseComparison(self::COMPARISON_LOGIC_AND, $property, $value);
+        }
+    }
+
+    private function _parseComparison($compareLogic, $property, $value)
+    {
+        switch ($property) {
+            case self::FILTER_CONFIG_LENGTH:
+                $this->length($value);
+                break;
+            case self::FILTER_CONFIG_OFFSET:
+                $this->offset($value);
+                break;
+            case self::FILTER_CONFIG_ORDER_BY:
+                $this->orderBy($value);
+                break;
+            case self::FILTER_CONFIG_REVERSE:
+                $this->reverse($value);
+                break;
+            default:
+                $compare = $this->_extractComparisonTypeAndValue($value);
+                $compareType = $compare->type;
+                $compareValue = $compare->value;
+                $this->_configureComparison($compareLogic, $compareType, $property, $compareValue);
         }
     }
 
     private function _extractComparisonTypeAndValue($val)
     {
+        $validComparisons = [
+            self::COMPARISON_TYPE_GREATERTHAN_EQUAL,
+            self::COMPARISON_TYPE_LESSTHAN_EQUAL,
+            self::COMPARISON_TYPE_NOT_EQUAL,
+            self::COMPARISON_TYPE_GREATERTHAN,
+            self::COMPARISON_TYPE_LESSTHAN,
+            self::METHOD_LOGIC_TYPE_EQUAL
+        ];
         $comparison = substr($val, 0, 2);
         switch ($comparison) {
-            case '>=':
-                $compare = 'gteq';
+            case self::COMPARISON_TYPE_GREATERTHAN_EQUAL:
+                $type = self::METHOD_LOGIC_TYPE_GREATERTHAN_EQUAL;
                 break;
-            case '<=':
-                $compare = 'lteq';
+            case self::COMPARISON_TYPE_LESSTHAN_EQUAL:
+                $type = self::METHOD_LOGIC_TYPE_LESSTHAN_EQUAL;
                 break;
-            case '<>':
-                $compare = 'not';
+            case self::COMPARISON_TYPE_NOT_EQUAL:
+                $type = self::METHOD_LOGIC_TYPE_NOT_EQUAL;
                 break;
         }
-        if (empty($compare)) {
+        if (empty($type)) {
             $comparison = substr($val, 0, 1);
             switch ($comparison) {
-                case '>':
-                    $compare = 'gt';
+                case self::COMPARISON_TYPE_GREATERTHAN:
+                    $type = self::METHOD_LOGIC_TYPE_GREATERTHAN;
                     break;
-                case '<':
-                    $compare = 'lt';
+                case self::COMPARISON_TYPE_LESSTHAN:
+                    $type = self::METHOD_LOGIC_TYPE_LESSTHAN;
                     break;
                 default:
-                    $compare = 'eq';
+                    $type = self::METHOD_LOGIC_TYPE_EQUAL;
             }
         }
+
         return (object) [
-            'type' => $compare,
-            'value' => (is_string($val)) ? str_replace($comparison, '', $val) : $val
+            'type' => $type,
+            'value' => (is_string($val) && in_array($comparison, $validComparisons))
+                ? str_replace($comparison, '', $val)
+                : $val
         ];
     }
 
-    private function _configureComparison($logic, $comparison, $prop, $value)
+    private function _configureComparison($comparisonLogic, $comparisonType, $property, $value)
     {
-        $this->{$logic}($prop)->{$comparison}($val);
+        $this->{$comparisonLogic}($property)->{$comparisonType}($value);
     }
 }

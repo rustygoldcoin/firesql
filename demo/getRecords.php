@@ -13,12 +13,8 @@ $pdo = new PDO('sqlite:' . __DIR__ . '/demo.db');
 $db = new Fire\Sql($pdo);
 $collection = $db->collection('TestCollection');
 
-$filter = new Fire\Sql\Filter('{"rand": [">4", 4]}');
-$filter->where('rand')->eq(6);
-$filter->and('rand')->gteq(6);
-$filter->or('rand')->eq(5);
-$filter->and('rand')->gt(10);
-
+$filter = new Fire\Sql\Filter('[{"rand": "4"},{"rand":5}]');
+debugger($filter);
 $result = $collection->find($filter);
 debugger($result);
 debugger(count($result));

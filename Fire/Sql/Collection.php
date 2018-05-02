@@ -148,17 +148,17 @@ class Collection
 
     private function _getObjectsByFilter(Filter $filterQuery)
     {
-        $filter = $filterQuery->filter();
+        $records = [];
         $props = [];
         $filters = [];
-        foreach ($filter->filters as $applyFilter) {
-            $props[] = $applyFilter->prop;
-            if ($applyFilter->expression && $applyFilter->comparison && $applyFilter->prop) {
-                $expression = ($applyFilter->expression !== 'WHERE') ? $applyFilter->expression . ' ' : '';
-                $prop = is_int($applyFilter->val) ? 'CAST(' . $applyFilter->prop . ' AS INT)' : $applyFilter->prop;
-                $comparison = $applyFilter->comparison;
-                $value = (!isset($applyFilter->val) || is_null($applyFilter->val)) ? 'NULL' : $applyFilter->val;
-                $filters[] = $expression . $prop . ' ' . $comparison . ' \'' . $value . '\'';
+        foreach ($filterQuery->getComparisons() as $comparison) {
+            $props[] = $comparison->prop;
+            if ($comparison->expression && $comparison->comparison && $comparison->prop) {
+                $expression = ($comparison->expression !== 'WHERE') ? $comparison->expression . ' ' : '';
+                $prop = is_int($comparison->val) ? 'CAST(' . $comparison->prop . ' AS INT)' : $comparison->prop;
+                $compare = $comparison->comparison;
+                $value = (!isset($comparison->val) || is_null($comparison->val)) ? 'NULL' : $comparison->val;
+                $filters[] = $expression . $prop . ' ' . $compare . ' \'' . $value . '\'';
             }
         }
 
@@ -190,16 +190,20 @@ class Collection
                 '@columns' => (count($props) > 0) ? ', ' . implode($props, ', ') : '',
                 '@joinColumns' => (count($joins) > 0) ? implode($joins, ' ') . ' ' : '',
                 '@collection' => $this->_connector->quote($this->_name),
-                '@type' => $this->_connector->quote($filter->type),
+                '@type' => $this->_connector->quote($filterQuery->getIndexType()),
                 '@filters' => ($filters) ? 'AND (' . implode($filters, ' ') . ') ' : '',
-                '@order' => $filter->order,
-                '@reverse' => ($filter->reverse) ? 'DESC' : 'ASC',
-                '@limit' => $filter->length,
-                '@offset' => $filter->offset
+                '@order' => $filterQuery->getOrderBy(),
+                '@reverse' => ($filterQuery->getReverse()) ? 'DESC' : 'ASC',
+                '@limit' => $filterQuery->getLength(),
+                '@offset' => $filterQuery->getOffset()
             ]
         );
-        $records = $this->_connector->query($select)->fetchAll();
-        return ($records) ? array_map([$this, '_mapObjectIds'], $records) : null;
+
+        $result = $this->_connector->query($select);
+        if ($result) {
+            $records = $result->fetchAll();
+        }
+        return ($records) ? array_map([$this, '_mapObjectIds'], $records) : [];
     }
 
     private function _isPropertyIndexable($property)

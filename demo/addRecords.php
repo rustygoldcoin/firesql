@@ -13,7 +13,7 @@ $pdo = new PDO('sqlite:' . __DIR__ . '/demo.db');
 $db = new Fire\Sql($pdo);
 $collection = $db->collection('TestCollection');
 
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; $i < 100; $i++) {
     $start = $firebug->timer();
     $obj = (object) [
        'index' => $i,
@@ -21,7 +21,7 @@ for ($i = 0; $i < 1000; $i++) {
        'lastName' => 'Joshua',
        'email' => 'josh@ua1.us',
        'phone' => '4075628773',
-       'rand' => rand(1,200)
+       'rand' => rand(1,10)
     ];
 
     $object = $collection->insert($obj);
