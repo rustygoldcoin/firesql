@@ -171,25 +171,13 @@ class Filter {
         $firstObj = true;
         foreach ($queryObjs as $queryObj) {
             $firstProperty = true;
-            foreach ($queryObj as $prop => $val) {
-                if (is_array($val)) {
-                    foreach ($val as $comparison) {
-                        if ($firstObj && $firstProperty) {
-                            $this->_parseComparison(self::COMPARISON_LOGIC_WHERE, $prop, $comparison);
-                        } else if (!$firstObj && $firstProperty) {
-                            $this->_parseComparison(self::COMPARISON_LOGIC_OR, $prop, $comparison);
-                        } else {
-                            $this->_parseComparison(self::COMPARISON_LOGIC_AND, $prop, $comparison);
-                        }
+            foreach ($queryObj as $property => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $val) {
+                        $this->_addFilterComparison($firstObj, $firstProperty, $property, $val);
                     }
                 } else {
-                    if ($firstObj && $firstProperty) {
-                        $this->_parseComparison(self::COMPARISON_LOGIC_WHERE, $prop, $val);
-                    } else if (!$firstObj && $firstProperty) {
-                        $this->_parseComparison(self::COMPARISON_LOGIC_OR, $prop, $val);
-                    } else {
-                        $this->_parseComparison(self::COMPARISON_LOGIC_AND, $prop, $val);
-                    }
+                    $this->_addFilterComparison($firstObj, $firstProperty, $property, $value);
                 }
                 $firstProperty = false;
             }
@@ -227,7 +215,7 @@ class Filter {
                 $compare = $this->_extractComparisonTypeAndValue($value);
                 $compareType = $compare->type;
                 $compareValue = $compare->value;
-                $this->_configureComparison($compareLogic, $compareType, $property, $compareValue);
+                $this->{$compareLogic}($property)->{$compareType}($compareValue);
         }
     }
 
@@ -273,10 +261,5 @@ class Filter {
                 ? str_replace($comparison, '', $val)
                 : $val
         ];
-    }
-
-    private function _configureComparison($comparisonLogic, $comparisonType, $property, $value)
-    {
-        $this->{$comparisonLogic}($property)->{$comparisonType}($value);
     }
 }

@@ -54,11 +54,12 @@ class Collection
     public function find($filter = null)
     {
         if (is_string($filter)) {
-            return $this->_getObject($filter);
+            $filter = new Filter($filter);
+            return $this->_getObjectsByFilter($filter);
         } else if (is_object($filter) && $filter instanceof Filter) {
             return $this->_getObjectsByFilter($filter);
         }
-        return null;
+        return [];
     }
 
     public function insert($object)
