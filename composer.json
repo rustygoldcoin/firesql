@@ -1,8 +1,20 @@
 {
     "name": "ua1-labs/firesql",
-    "version": "0.9.0",
+    "version": "0.1.0",
     "description": "Bringing NoSQL to SQL",
     "type": "library",
+    "keywords": [
+        "sql",
+        "mongo",
+        "orm",
+        "dbal",
+        "nosql",
+        "firestudio",
+        "fire",
+        "ua1labs",
+        "ua1-labs",
+        "ua1"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -11,10 +23,10 @@
         }
     ],
     "require": {
-        "ua1-labs/firebug": "dev-master"
+        "ua1-labs/firebug": "1.*"
     },
     "require-dev": {
-        "ua1-labs/firetest": "dev-master"
+        "ua1-labs/firetest": "1.*"
     },
     "autoload": {
         "files": [
