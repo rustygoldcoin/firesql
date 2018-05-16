@@ -1,5 +1,6 @@
 {
     "name": "ua1-labs/firesql",
+    "version": "0.9.0",
     "description": "Bringing NoSQL to SQL",
     "type": "library",
     "license": "MIT",
