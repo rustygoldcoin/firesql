@@ -11,7 +11,7 @@ class Statement
     {
         self::$_statements = [
             'CREATE_DB_TABLES' =>
-                'CREATE TABLE IF NOT EXISTS \'__object\' (' .
+                'CREATE TABLE IF NOT EXISTS __object (' .
                     'collection TEXT NOT NULL, ' .
                     'id TEXT NOT NULL, ' .
                     'revision INTEGER NOT NULL, ' .
@@ -20,7 +20,7 @@ class Statement
                     'origin TEXT NOT NULL, ' .
                     'obj BLOB NOT NULL' .
                 '); ' .
-                'CREATE TABLE IF NOT EXISTS \'__index\' (' .
+                'CREATE TABLE IF NOT EXISTS __index (' .
                     'type TEXT NOT NULL, ' .
                     'prop TEXT NOT NULL, ' .
                     'val TEXT NOT NULL, ' .
@@ -29,20 +29,20 @@ class Statement
                     'origin TEXT NOT NULL' .
                 ');',
             'DELETE_OBJECT' =>
-                'DELETE FROM \'__object\' ' .
+                'DELETE FROM __object ' .
                 'WHERE id = @id;',
             'DELETE_OBJECT_INDEX' =>
-                'DELETE FROM \'__index\' ' .
+                'DELETE FROM __index ' .
                 'WHERE id = @id;',
             'GET_CURRENT_OBJECT' =>
                 'SELECT obj ' .
-                'FROM \'__object\'' .
+                'FROM __object ' .
                 'WHERE id = @id AND committed = 1 ' .
                 'ORDER BY updated DESC ' .
                 'LIMIT 1;',
             'GET_OBJECT_ORIGIN_DATE' =>
                 'SELECT updated ' .
-                'FROM \'__object\'' .
+                'FROM __object ' .
                 'WHERE id = @id AND committed = 1 ' .
                 'ORDER BY updated ASC ' .
                 'LIMIT 1;',
@@ -52,7 +52,7 @@ class Statement
                 'A.collection as __collection, ' .
                 'A.origin AS __origin' .
                 '@columns ' .
-                'FROM \'__index\' AS A ' .
+                'FROM __index AS A ' .
                 '@joinColumns' .
                 'WHERE collection = @collection AND type = @type @filters' .
                 'GROUP BY A.id ' .
@@ -60,13 +60,13 @@ class Statement
                 'LIMIT @limit ' .
                 'OFFSET @offset;',
             'INSERT_OBJECT' =>
-                'INSERT INTO \'__object\' (collection, id, revision, committed, updated, origin, obj) ' .
+                'INSERT INTO __object (collection, id, revision, committed, updated, origin, obj) ' .
                 'VALUES (@collection, @id, @revision, @committed, @updated, @origin, @obj);',
             'INSERT_OBJECT_INDEX' =>
-                'INSERT INTO \'__index\' (type, prop, val, collection, id, origin) ' .
+                'INSERT INTO __index (type, prop, val, collection, id, origin) ' .
                 'VALUES (@type, @prop, @val, @collection, @id, @origin);',
             'UPDATE_OBJECT_TO_COMMITTED' =>
-                'UPDATE \'__object\' ' .
+                'UPDATE __object ' .
                 'SET committed = 1 ' .
                 'WHERE id = @id;'
         ];

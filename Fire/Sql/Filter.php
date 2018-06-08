@@ -53,7 +53,7 @@ class Filter {
         $this->_orderBy = '__origin';
         $this->_reverse = true;
         $this->_offset = 0;
-        $this->_length = -1;
+        $this->_length = 10;
         if (!empty($queryString)) {
             $this->indexType(self::INDEX_SEARCH_TYPE_VALUE);
             $this->_parseQueryString($queryString);

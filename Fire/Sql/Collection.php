@@ -54,8 +54,14 @@ class Collection
     public function find($filter = null)
     {
         if (is_string($filter)) {
-            $filter = new Filter($filter);
-            return $this->_getObjectsByFilter($filter);
+            json_decode($filter);
+            $isJson = (json_last_error() === JSON_ERROR_NONE) ? true :false;
+            if ($isJson) {
+                $filter = new Filter($filter);
+                return $this->_getObjectsByFilter($filter);
+            } else {
+                return $this->_getObject($filter);
+            }
         } else if (is_object($filter) && $filter instanceof Filter) {
             return $this->_getObjectsByFilter($filter);
         }
@@ -178,7 +184,7 @@ class Collection
                 $joins[] =
                     'JOIN(' .
                         'SELECT id, val as ' . $prop . ' ' .
-                        'FROM \'__index\' ' .
+                        'FROM __index ' .
                         'WHERE prop = \'' . $prop . '\'' .
                     ') AS ' . $asTbl . ' ' .
                     'ON A.id = ' . $asTbl . '.id';
@@ -286,6 +292,7 @@ class Collection
     {
         $objectId = (!is_null($id)) ? $id : $this->_generateUniqueId();
         $origin = $this->_getObjectOrigin($objectId);
+        $object = json_decode(json_encode($object));
         $object->__id = $objectId;
         $object->__revision = $this->_generateRevisionNumber();
         $object->__updated = $this->_generateTimestamp();

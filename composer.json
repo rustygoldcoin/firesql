@@ -1,6 +1,6 @@
 {
     "name": "ua1-labs/firesql",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "description": "Bringing NoSQL to SQL",
     "type": "library",
     "keywords": [

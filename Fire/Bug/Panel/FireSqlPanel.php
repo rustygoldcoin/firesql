@@ -22,14 +22,14 @@ class FireSqlPanel extends Panel
 
     const ID = 'firesql';
     const NAME = 'FireSQL';
-    const TEMPLATE = __DIR__ . '/../../../view/panels/firesql.phtml';
+    const TEMPLATE = '/firesql.phtml';
 
     private $_statements;
 
     public function __construct()
     {
         $this->_statements = [];
-        parent::__construct(self::ID, self::NAME, self::TEMPLATE);
+        parent::__construct(self::ID, self::NAME, __DIR__ . self::TEMPLATE);
     }
 
     public function addSqlStatement($statement)

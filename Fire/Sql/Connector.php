@@ -27,7 +27,8 @@ class Connector
         $this->_pdo->exec($sql);
         //record sql statement
         if ($this->_firebug->isEnabled()) {
-            $this->_recordSqlStatement($start, $sql);
+            $trace = debug_backtrace();
+            $this->_recordSqlStatement($start, $sql, $trace);
         }
     }
 
@@ -39,7 +40,8 @@ class Connector
         $records = $this->_pdo->query($sql);
         //record sql statement
         if ($this->_firebug->isEnabled()) {
-            $this->_recordSqlStatement($start, $sql);
+            $trace = debug_backtrace();
+            $this->_recordSqlStatement($start, $sql, $trace);
         }
 
         return $records;
@@ -50,11 +52,12 @@ class Connector
         return $this->_pdo->quote($statement);
     }
 
-    private function _recordSqlStatement($start, $sql)
+    private function _recordSqlStatement($start, $sql, $trace)
     {
         $sqlStatement = new SqlStatement();
         $sqlStatement->setStatement($sql);
         $sqlStatement->setTime($this->_firebug->timer($start));
+        $sqlStatement->setTrace($trace);
         $this->_firebug
             ->getPanel(FireSqlPanel::ID)
             ->addSqlStatement($sqlStatement);

@@ -22,10 +22,13 @@ class SqlStatement
 
     private $_time;
 
+    private $_trace;
+
     public function __construct()
     {
         $this->_statement = '';
         $this->_time = 0;
+        $this->_trace = [];
     }
 
     public function setStatement($statement)
@@ -46,6 +49,16 @@ class SqlStatement
     public function getTime()
     {
         return $this->_time;
+    }
+
+    public function getTrace()
+    {
+        return $this->_trace;
+    }
+
+    public function setTrace($trace)
+    {
+        $this->_trace = $trace;
     }
 
 }
