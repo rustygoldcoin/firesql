@@ -21,7 +21,7 @@ class FireSqlPanel extends Panel
 {
 
     const ID = 'firesql';
-    const NAME = 'FireSQL';
+    const NAME = '{count} FireSQL';
     const TEMPLATE = '/firesql.phtml';
 
     private $_statements;
@@ -40,6 +40,13 @@ class FireSqlPanel extends Panel
     public function getSqlStatements()
     {
         return $this->_statements;
+    }
+
+    public function render()
+    {
+        $statementCount = count($this->_statements);
+        $this->setName(str_replace('{count}', '{' . $statementCount . '}', self::NAME));
+        parent::render();
     }
 
 }

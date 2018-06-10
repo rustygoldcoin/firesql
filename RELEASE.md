@@ -1,5 +1,7 @@
 # Release Changes
-
+* 1.1.0
+    * Remove hard coded styles for hr in firesql.phtml
+    * Add count to the FireSql panel in firebug. It should read {2} FireSql
 * 1.0.0
     * Initial Release
 

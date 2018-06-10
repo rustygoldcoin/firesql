@@ -1,23 +1,23 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "a6e17e80cf119d9b6ecca5567c809b93",
+    "content-hash": "a5c355fc190bd50adbd035ad45477119",
     "packages": [
         {
             "name": "ua1-labs/firebug",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ua1-labs/firebug.git",
-                "reference": "c38e22c71d976300bb8358ab2932cce37eb9a9a7"
+                "reference": "a1fdae59e309ef7a4d81d3aa12fa16a7a76ea5dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ua1-labs/firebug/zipball/c38e22c71d976300bb8358ab2932cce37eb9a9a7",
-                "reference": "c38e22c71d976300bb8358ab2932cce37eb9a9a7",
+                "url": "https://api.github.com/repos/ua1-labs/firebug/zipball/a1fdae59e309ef7a4d81d3aa12fa16a7a76ea5dc",
+                "reference": "a1fdae59e309ef7a4d81d3aa12fa16a7a76ea5dc",
                 "shasum": ""
             },
             "require-dev": {
@@ -56,22 +56,22 @@
                 "ua1labs",
                 "var_dump"
             ],
-            "time": "2018-05-16T16:53:48+00:00"
+            "time": "2018-06-10T00:57:36+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "ua1-labs/firetest",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ua1-labs/firetest.git",
-                "reference": "188addd154d98e9a38607155dd4bcfb04d5580d7"
+                "reference": "393d840cd823f8f04789cb8ea7d9bb0aae41682c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ua1-labs/firetest/zipball/188addd154d98e9a38607155dd4bcfb04d5580d7",
-                "reference": "188addd154d98e9a38607155dd4bcfb04d5580d7",
+                "url": "https://api.github.com/repos/ua1-labs/firetest/zipball/393d840cd823f8f04789cb8ea7d9bb0aae41682c",
+                "reference": "393d840cd823f8f04789cb8ea7d9bb0aae41682c",
                 "shasum": ""
             },
             "require-dev": {
@@ -101,10 +101,14 @@
                 "firetest",
                 "test",
                 "testing",
+                "ua1",
+                "ua1-labs",
+                "ua1labs",
                 "unit",
+                "unit test",
                 "unittest"
             ],
-            "time": "2018-05-16T12:46:35+00:00"
+            "time": "2018-06-10T01:04:28+00:00"
         }
     ],
     "aliases": [],
