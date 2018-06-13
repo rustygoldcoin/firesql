@@ -1,23 +1,23 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a5c355fc190bd50adbd035ad45477119",
+    "content-hash": "99e40a657da1e5809ba7d2e3a9311832",
     "packages": [
         {
             "name": "ua1-labs/firebug",
-            "version": "1.1.0",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ua1-labs/firebug.git",
-                "reference": "a1fdae59e309ef7a4d81d3aa12fa16a7a76ea5dc"
+                "reference": "181f3568007a44b8d69b8b75e3e404a04a421dce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ua1-labs/firebug/zipball/a1fdae59e309ef7a4d81d3aa12fa16a7a76ea5dc",
-                "reference": "a1fdae59e309ef7a4d81d3aa12fa16a7a76ea5dc",
+                "url": "https://api.github.com/repos/ua1-labs/firebug/zipball/181f3568007a44b8d69b8b75e3e404a04a421dce",
+                "reference": "181f3568007a44b8d69b8b75e3e404a04a421dce",
                 "shasum": ""
             },
             "require-dev": {
@@ -56,7 +56,7 @@
                 "ua1labs",
                 "var_dump"
             ],
-            "time": "2018-06-10T00:57:36+00:00"
+            "time": "2018-06-13T16:29:20+00:00"
         }
     ],
     "packages-dev": [

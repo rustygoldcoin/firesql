@@ -5,28 +5,7 @@
 <?php if (!empty($statements)) { ?>
     <?php foreach ($statements as $statement) { ?>
         <span class="fs-label">
-            <?php
-                $traces = $statement->getTrace();
-                foreach ($traces as $index => $trace) {
-                    $traceLine = '#' . $index . ' ';
-
-                    if (!empty($trace['file'])) {
-                        $traceLine .= $trace['file'];
-                    }
-
-                    if (!empty($trace['line'])) {
-                        $traceLine .= '(' . $trace['line'] . ') ';
-                    }
-
-                    if (!empty($trace['class'])) {
-                        $traceLine .= $trace['class'] . '::';
-                    }
-
-                    $traceLine .= $trace['function'] . '()'
-                        . '<br>';
-                    echo $traceLine;
-                }
-            ?>
+            <?php echo $this->renderTrace($statement->getTrace()); ?>
         </span>
         <span class="fs-label">
             <span class="fs-pre-wrap">wrap</span>

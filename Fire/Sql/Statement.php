@@ -68,7 +68,8 @@ class Statement
             'UPDATE_OBJECT_TO_COMMITTED' =>
                 'UPDATE __object ' .
                 'SET committed = 1 ' .
-                'WHERE id = @id;'
+                'WHERE id = @id ' .
+                'AND revision = @revision;'
         ];
     }
 

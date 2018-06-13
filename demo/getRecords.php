@@ -18,4 +18,4 @@
 // debugger($result);
 // debugger(count($result));
 //
-// $firebug->render();
+// echo $firebug->render();
