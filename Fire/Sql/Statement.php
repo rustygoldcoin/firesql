@@ -59,6 +59,10 @@ class Statement
                 'ORDER BY @order @reverse ' .
                 'LIMIT @limit ' .
                 'OFFSET @offset;',
+            'GET_COLLECTION_OBJECT_COUNT' =>
+                'SELECT COUNT(*) ' .
+                'FROM __index ' .
+                'WHERE collection = @collection AND type = \'registry\'',
             'INSERT_OBJECT' =>
                 'INSERT INTO __object (collection, id, revision, committed, updated, origin, obj) ' .
                 'VALUES (@collection, @id, @revision, @committed, @updated, @origin, @obj);',

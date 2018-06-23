@@ -78,6 +78,26 @@ class Collection
         $this->_upsert($object, $id);
     }
 
+    /**
+     * Returns the total number of objects in a collection.
+     * @return int
+     */
+    public function count()
+    {
+        $select = Statement::get(
+            'GET_COLLECTION_OBJECT_COUNT',
+            [
+                '@collection' => $this->_connector->quote($this->_name)
+            ]
+        );
+        $count = $this->_connector->query($select)->fetch();
+        if ($count) {
+            return (int) $count[0];
+        } else {
+            return 0;
+        }
+    }
+
     private function _commitObject($id)
     {
         $update = Statement::get(
