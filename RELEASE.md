@@ -1,4 +1,9 @@
 # Release Changes
+
+* 1.1.1
+    * Update firesql.phtml to use the new renderTrace() available in the Fire\Bug\Panel object.
+    * Remove composer.lock as it is not needed because this is a library.
+    * Adjust upsert process to commit object using version as well as id.
 * 1.1.0
     * Remove hard coded styles for hr in firesql.phtml
     * Add count to the FireSql panel in firebug. It should read {2} FireSql

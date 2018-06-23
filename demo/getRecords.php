@@ -13,10 +13,10 @@
 // $db = new Fire\Sql($pdo);
 // $collection = $db->collection('TestCollection');
 
-// // $filter = '{"rand":"1"}';
-// // $result = $collection->find($filter);
-// // debugger($result);
-// // debugger(count($result));
+// $filter = '{"rand":"1"}';
+// $result = $collection->find($filter);
+// debugger($result);
+// debugger(count($result));
 // debugger($collection->count());
 
 // echo $firebug->render();

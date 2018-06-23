@@ -103,7 +103,8 @@ class Collection
         $update = Statement::get(
             'UPDATE_OBJECT_TO_COMMITTED',
             [
-                '@id' => $this->_connector->quote($id)
+                '@id' => $this->_connector->quote($id),
+                '@revision' => $this->_connector->quote($revision)
             ]
         );
         $this->_connector->exec($update);
@@ -304,7 +305,7 @@ class Collection
     {
         $object = $this->_writeObjectToDb($object, $id);
         $this->_updateObjectIndexes($object);
-        $this->_commitObject($object->__id);
+        $this->_commitObject($object->__id, $object->__revision);
         return $object;
     }
 

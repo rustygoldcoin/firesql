@@ -13,7 +13,7 @@
 // $db = new Fire\Sql($pdo);
 // $collection = $db->collection('TestCollection');
 //
-// for ($i = 0; $i < 100; $i++) {
+// for ($i = 0; $i < 10; $i++) {
 //     $start = $firebug->timer();
 //     $obj = (object) [
 //        'index' => $i,
@@ -29,4 +29,4 @@
 //     debugger('#' . $i . ' id:' . $object->__id . ' time:' . $firebug->timer($start) . 'ms');
 // }
 //
-// $firebug->render();
+// echo $firebug->render();

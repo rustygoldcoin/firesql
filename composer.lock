@@ -1,0 +1,121 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "99e40a657da1e5809ba7d2e3a9311832",
+    "packages": [
+        {
+            "name": "ua1-labs/firebug",
+            "version": "1.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ua1-labs/firebug.git",
+                "reference": "181f3568007a44b8d69b8b75e3e404a04a421dce"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ua1-labs/firebug/zipball/181f3568007a44b8d69b8b75e3e404a04a421dce",
+                "reference": "181f3568007a44b8d69b8b75e3e404a04a421dce",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpdocumentor/phpdocumentor": "2.*",
+                "ua1-labs/firetest": "1.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Fire\\": "Fire/",
+                    "Test\\": "Test/"
+                },
+                "files": [
+                    "functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "UA1 Labs",
+                    "email": "development@ua1.us"
+                }
+            ],
+            "description": "An expandable PHP debugger panel.",
+            "keywords": [
+                "debugger",
+                "debugging",
+                "fire",
+                "firestudio",
+                "test",
+                "ua1",
+                "ua1-labs",
+                "ua1labs",
+                "var_dump"
+            ],
+            "time": "2018-06-13T16:29:20+00:00"
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "ua1-labs/firetest",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ua1-labs/firetest.git",
+                "reference": "393d840cd823f8f04789cb8ea7d9bb0aae41682c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ua1-labs/firetest/zipball/393d840cd823f8f04789cb8ea7d9bb0aae41682c",
+                "reference": "393d840cd823f8f04789cb8ea7d9bb0aae41682c",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpdocumentor/phpdocumentor": "2.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Fire\\": "Fire/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "UA1 Labs",
+                    "email": "development@ua1.us"
+                }
+            ],
+            "description": "A Lightweight PHP Testing Framework",
+            "keywords": [
+                "fire",
+                "firedb",
+                "firestudio",
+                "firetest",
+                "test",
+                "testing",
+                "ua1",
+                "ua1-labs",
+                "ua1labs",
+                "unit",
+                "unit test",
+                "unittest"
+            ],
+            "time": "2018-06-10T01:04:28+00:00"
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
