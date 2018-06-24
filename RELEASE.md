@@ -1,5 +1,8 @@
 # Release Changes
 
+* 1.2.0
+    * Add count method to collection that will return the number of objects in a collection.
+    * Update firebug panel to use the new firebug render helpers.
 * 1.1.1
     * Update firesql.phtml to use the new renderTrace() available in the Fire\Bug\Panel object.
     * Remove composer.lock as it is not needed because this is a library.
