@@ -1,21 +1,12 @@
 <?php
     $statements = $this->getSqlStatements();
-?>
-
-<?php if (!empty($statements)) { ?>
-    <?php foreach ($statements as $statement) { ?>
-        <span class="fs-label">
-            <?php echo $this->renderTrace($statement->getTrace()); ?>
-        </span>
-        <span class="fs-label">
-            <span class="fs-pre-wrap">wrap</span>
-            <pre class="fs-dark"><?php echo $statement->getStatement(); ?></pre>
-        </span>
-        <span class="fs-label">
-            <?php echo $statement->getTime(); ?> milliseconds
-        </span>
-        <hr class="fs-hr">
-    <?php } ?>
-<?php } else { ?>
-    <p>No SQL Statements Executed...</p>
-<?php } ?>
+    if (!empty($statements)) {
+        foreach ($statements as $statement) { 
+            echo $this->renderTrace($statement->getTrace()); 
+            echo $this->renderCode($statement->getStatement());
+            echo $this->renderLabel($statement->getTime() . ' milliseconds');
+            echo $this->renderSeparator();
+        }
+    } else {
+        echo $this->renderLabel('No SQL Statements Executed...');
+    }

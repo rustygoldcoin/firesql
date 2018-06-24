@@ -98,7 +98,7 @@ class Collection
         }
     }
 
-    private function _commitObject($id)
+    private function _commitObject($id, $revision)
     {
         $update = Statement::get(
             'UPDATE_OBJECT_TO_COMMITTED',
