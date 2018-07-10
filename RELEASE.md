@@ -1,5 +1,7 @@
 # Release Changes
 
+* 1.3.0
+    * Add ability to pass in filter into collection->count() to get object count for the filter.
 * 1.2.0
     * Add count method to collection that will return the number of objects in a collection.
     * Update firebug panel to use the new firebug render helpers.

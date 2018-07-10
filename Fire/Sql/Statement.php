@@ -47,9 +47,9 @@ class Statement
                 'ORDER BY updated ASC ' .
                 'LIMIT 1;',
             'GET_OBJECTS_BY_FILTER' =>
-                'SELECT A.id as __id, ' .
+                'SELECT A.id AS __id, ' .
                 'A.type AS __type, ' .
-                'A.collection as __collection, ' .
+                'A.collection AS __collection, ' .
                 'A.origin AS __origin' .
                 '@columns ' .
                 'FROM __index AS A ' .
@@ -63,6 +63,15 @@ class Statement
                 'SELECT COUNT(*) ' .
                 'FROM __index ' .
                 'WHERE collection = @collection AND type = \'registry\'',
+            'GET_OBJECTS_COUNT_BY_FILTER' =>
+                'SELECT COUNT(*) FROM (' .
+                'SELECT A.id AS __id ' .
+                '@columns ' .
+                'FROM __index AS A ' .
+                '@joinColumns' .
+                'WHERE collection = @collection AND type = @type @filters' .
+                'GROUP BY A.id' .
+                ');',
             'INSERT_OBJECT' =>
                 'INSERT INTO __object (collection, id, revision, committed, updated, origin, obj) ' .
                 'VALUES (@collection, @id, @revision, @committed, @updated, @origin, @obj);',

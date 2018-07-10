@@ -82,20 +82,21 @@ class Collection
      * Returns the total number of objects in a collection.
      * @return int
      */
-    public function count()
+    public function count($filter = null)
     {
-        $select = Statement::get(
-            'GET_COLLECTION_OBJECT_COUNT',
-            [
-                '@collection' => $this->_connector->quote($this->_name)
-            ]
-        );
-        $count = $this->_connector->query($select)->fetch();
-        if ($count) {
-            return (int) $count[0];
-        } else {
-            return 0;
+        if (is_null($filter)) {
+            return $this->_countObjectsInCollection();
+        } else if (is_string($filter)) {
+            json_decode($filter);
+            $isJson = (json_last_error() === JSON_ERROR_NONE) ? true :false;
+            if ($isJson) {
+                $filter = new Filter($filter);
+                return $this->_countObjectsInCollectionByFilter($filter);
+            }
+        } else if (is_object($filter) && $filter instanceof Filter) {
+            return $this->_countObjectsInCollectionByFilter($filter);
         }
+        return 0;
     }
 
     private function _commitObject($id, $revision)
@@ -204,7 +205,7 @@ class Collection
                 $asTbl = $this->_generateAlphaToken();
                 $joins[] =
                     'JOIN(' .
-                        'SELECT id, val as ' . $prop . ' ' .
+                        'SELECT id, val AS ' . $prop . ' ' .
                         'FROM __index ' .
                         'WHERE prop = \'' . $prop . '\'' .
                     ') AS ' . $asTbl . ' ' .
@@ -334,5 +335,78 @@ class Collection
         );
         $this->_connector->exec($insert);
         return $object;
+    }
+
+    private function _countObjectsInCollection()
+    {
+        $select = Statement::get(
+            'GET_COLLECTION_OBJECT_COUNT',
+            [
+                '@collection' => $this->_connector->quote($this->_name)
+            ]
+        );
+        $count = $this->_connector->query($select)->fetch();
+        if ($count) {
+            return (int) $count[0];
+        } else {
+            return 0;
+        }
+    }
+
+    private function _countObjectsInCollectionByFilter(Filter $filterQuery)
+    {
+        $records = [];
+        $props = [];
+        $filters = [];
+        foreach ($filterQuery->getComparisons() as $comparison) {
+            $props[] = $comparison->prop;
+            if ($comparison->expression && $comparison->comparison && $comparison->prop) {
+                $expression = ($comparison->expression !== 'WHERE') ? $comparison->expression . ' ' : '';
+                $prop = is_int($comparison->val) ? 'CAST(' . $comparison->prop . ' AS INT)' : $comparison->prop;
+                $compare = $comparison->comparison;
+                $value = (!isset($comparison->val) || is_null($comparison->val)) ? 'NULL' : $comparison->val;
+                $filters[] = $expression . $prop . ' ' . $compare . ' \'' . $value . '\'';
+            }
+        }
+
+        $props = array_unique($props);
+        $joins = [];
+        foreach ($props as $prop)
+        {
+            $standardFields = [
+                '__id',
+                '__type',
+                '__collection',
+                '__origin'
+            ];
+            if (!in_array($prop, $standardFields)) {
+                $asTbl = $this->_generateAlphaToken();
+                $joins[] =
+                    'JOIN(' .
+                        'SELECT id, val AS ' . $prop . ' ' .
+                        'FROM __index ' .
+                        'WHERE prop = \'' . $prop . '\'' .
+                    ') AS ' . $asTbl . ' ' .
+                    'ON A.id = ' . $asTbl . '.id';
+            }
+        }
+
+        $select = Statement::get(
+            'GET_OBJECTS_COUNT_BY_FILTER',
+            [
+                '@columns' => (count($props) > 0) ? ', ' . implode($props, ', ') : '',
+                '@joinColumns' => (count($joins) > 0) ? implode($joins, ' ') . ' ' : '',
+                '@collection' => $this->_connector->quote($this->_name),
+                '@type' => $this->_connector->quote($filterQuery->getIndexType()),
+                '@filters' => ($filters) ? 'AND (' . implode($filters, ' ') . ') ' : ''
+            ]
+        );
+
+        $count = $this->_connector->query($select)->fetch();
+        if ($count) {
+            return (int) $count[0];
+        } else {
+            return 0;
+        }
     }
 }
