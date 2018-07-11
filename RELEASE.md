@@ -1,5 +1,7 @@
 # Release Changes
 
+* 1.3.1
+    * Update sql queries to fix issues with newer version of mysql.
 * 1.3.0
     * Add ability to pass in filter into collection->count() to get object count for the filter.
 * 1.2.0

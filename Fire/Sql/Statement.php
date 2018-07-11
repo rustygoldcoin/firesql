@@ -55,7 +55,7 @@ class Statement
                 'FROM __index AS A ' .
                 '@joinColumns' .
                 'WHERE collection = @collection AND type = @type @filters' .
-                'GROUP BY A.id ' .
+                'GROUP BY __id, __type, __collection, __origin @columns ' .
                 'ORDER BY @order @reverse ' .
                 'LIMIT @limit ' .
                 'OFFSET @offset;',
@@ -70,8 +70,8 @@ class Statement
                 'FROM __index AS A ' .
                 '@joinColumns' .
                 'WHERE collection = @collection AND type = @type @filters' .
-                'GROUP BY A.id' .
-                ');',
+                'GROUP BY __id' .
+                ') AS B;',
             'INSERT_OBJECT' =>
                 'INSERT INTO __object (collection, id, revision, committed, updated, origin, obj) ' .
                 'VALUES (@collection, @id, @revision, @committed, @updated, @origin, @obj);',
