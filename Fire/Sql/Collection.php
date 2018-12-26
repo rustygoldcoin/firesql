@@ -23,16 +23,90 @@ class Collection
     private $_name;
 
     /**
-     * Creates an instance of a new collection.
-     * @param String $name The name of the collection
-     * @param PDO $pdo The connection to the database
+     * Options used to configure how a collection
+     * should work.
+     * @var object
      */
-    public function __construct($name, Connector $connector)
+    private $_options;
+
+    /**
+     * Creates an instance of a new collection.
+     *
+     * Default $options:
+     * versionTracking | false | Determines if object updates should maintain the history.
+     *
+     * @param string $name The name of the collection
+     * @param PDO $pdo The connection to the database
+     * @param array $options An array of options
+     */
+    public function __construct($name, Connector $connector, $options = null)
     {
         $this->_connector = $connector;
         $this->_name = $name;
+
+        $defaultOptions = [
+            'versionTracking' => false
+        ];
+
+        if ($options) {
+            $opts = [];
+            foreach ($defaultOptions as $option => $value) {
+                $opts[$option] = isset($options[$option]) ? $options[$option] : $defaultOptions[$option];
+            }
+            $this->_options = (object) $opts;
+        } else {
+            $this->_options = (object) $defaultOptions;
+        }
     }
 
+    /**
+     * Returns a collection of objects that match the filter criteria
+     * @param string|null|Fire\Sql\Filter $filter
+     * @return void
+     */
+    public function find($filter = null)
+    {
+        if (is_string($filter)) {
+            json_decode($filter);
+            $isJson = (json_last_error() === JSON_ERROR_NONE) ? true :false;
+            if ($isJson) {
+                $filter = new Filter($filter);
+                return $this->_getObjectsByFilter($filter);
+            } else {
+                return $this->_getObject($filter);
+            }
+        } else if (is_object($filter) && $filter instanceof Filter) {
+            return $this->_getObjectsByFilter($filter);
+        }
+        return [];
+    }
+
+    /**
+     * Inserts an object in the collection.
+     * @param object $object
+     * @return void
+     */
+    public function insert($object)
+    {
+        return $this->_upsert($object, null);
+    }
+
+    /**
+     * Updates and object in the collection.
+     * @param string $id
+     * @param object $object
+     * @return void
+     */
+    public function update($id, $object)
+    {
+        $this->_upsert($object, $id);
+    }
+
+    /**
+     * Deletes an object from the database.
+     * @param string $id The ID of the object you want to delete
+     * @return void
+     */
     public function delete($id)
     {
         $delete = Statement::get(
@@ -51,35 +125,9 @@ class Collection
         $this->_connector->exec($delete);
     }
 
-    public function find($filter = null)
-    {
-        if (is_string($filter)) {
-            json_decode($filter);
-            $isJson = (json_last_error() === JSON_ERROR_NONE) ? true :false;
-            if ($isJson) {
-                $filter = new Filter($filter);
-                return $this->_getObjectsByFilter($filter);
-            } else {
-                return $this->_getObject($filter);
-            }
-        } else if (is_object($filter) && $filter instanceof Filter) {
-            return $this->_getObjectsByFilter($filter);
-        }
-        return [];
-    }
-
-    public function insert($object)
-    {
-        return $this->_upsert($object, null);
-    }
-
-    public function update($id, $object)
-    {
-        $this->_upsert($object, $id);
-    }
-
     /**
      * Returns the total number of objects in a collection.
+     * @param string|null|Fire\Sql\Filter $filter
      * @return int
      */
     public function count($filter = null)
@@ -99,18 +147,42 @@ class Collection
         return 0;
     }
 
+    /**
+     * After an object has been fully indexed, the object needs to be updated to
+     * indicated it is ready to be used within the collection.
+     * @param string $id
+     * @param int $revision
+     * @return void
+     */
     private function _commitObject($id, $revision)
     {
-        $update = Statement::get(
+        $update = '';
+        //if version tracking is disabled, delete previous revisions of the object
+        if (!$this->_options->versionTracking) {
+            $update .= Statement::get(
+                'DELETE_OBJECT_EXCEPT_REVISION',
+                [
+                    '@id' => $this->_connector->quote($id),
+                    '@revision' => $this->_connector->quote($revision)
+                ]
+            );
+        }
+        $update .= Statement::get(
             'UPDATE_OBJECT_TO_COMMITTED',
             [
                 '@id' => $this->_connector->quote($id),
                 '@revision' => $this->_connector->quote($revision)
             ]
         );
+
         $this->_connector->exec($update);
     }
 
+    /**
+     * This method is used to dynamically create tokens to help manage
+     * temporary tables within SQL queries.
+     * @return string A randomly genereated token
+     */
     private function _generateAlphaToken()
     {
         $timestamp = strtotime($this->_generateTimestamp());
@@ -123,11 +195,19 @@ class Collection
         return $randomString;
     }
 
+    /**
+     * This method creates a random revision number stamp.
+     * @return int
+     */
     private function _generateRevisionNumber()
     {
         return rand(1000001, 9999999);
     }
 
+    /**
+     * Generates a timestamp with micro seconds.
+     * @return string
+     */
     private function _generateTimestamp()
     {
         $time = microtime(true);
@@ -136,6 +216,10 @@ class Collection
         return $date->format("Y-m-d H:i:s.u");
     }
 
+    /**
+     * Generates a unique id based on a timestamp so that it is truely unique.
+     * @return string
+     */
     private function _generateUniqueId()
     {
         $rand = uniqid(rand(10, 99));
@@ -145,6 +229,13 @@ class Collection
         return sha1($date->format('YmdHisu'));
     }
 
+    /**
+     * Returns an object in the collection. If the revision isn't provided, the
+     * latest revision of the object will be returned.
+     * @param string $id
+     * @param int $revision
+     * @return object|null
+     */
     private function _getObject($id, $revision = null)
     {
         if ($revision === null) {
@@ -158,11 +249,15 @@ class Collection
             if ($record) {
                 return json_decode($record['obj']);
             }
-
-            return null;
         }
+        return null;
     }
 
+    /**
+     * Returns an object's origin timestamp date.
+     * @param string $id
+     * @return string|null
+     */
     private function _getObjectOrigin($id)
     {
         $select = Statement::get(
@@ -175,6 +270,11 @@ class Collection
         return ($record) ? $record['updated'] : null;
     }
 
+    /**
+     * Returns a collection of objects that matches a filter.
+     * @param Filter $filterQuery
+     * @return array
+     */
     private function _getObjectsByFilter(Filter $filterQuery)
     {
         $records = [];
@@ -235,12 +335,22 @@ class Collection
         return ($records) ? array_map([$this, '_mapObjectIds'], $records) : [];
     }
 
+    /**
+     * Determines if a property is indexable.
+     * @param string $property
+     * @return boolean
+     */
     private function _isPropertyIndexable($property)
     {
         $indexBlacklist = ['__id', '__revision', '__updated', '__origin'];
         return !in_array($property, $indexBlacklist);
     }
 
+    /**
+     * Determines if a value is indexable.
+     * @param mixed $value
+     * @return boolean
+     */
     public function _isValueIndexable($value)
     {
         return (
@@ -251,11 +361,22 @@ class Collection
         );
     }
 
+    /**
+     * Method used with array_map() to return an object
+     * for a given ID.
+     * @param object $record
+     * @return object|null
+     */
     private function _mapObjectIds($record)
     {
         return $this->_getObject($record['__id']);
     }
 
+    /**
+     * Updates an object's "value" index.
+     * @param object $object
+     * @return void
+     */
     private function _updateObjectIndexes($object)
     {
         //delete all indexed references to this object
@@ -302,6 +423,13 @@ class Collection
         $this->_connector->exec($update);
     }
 
+    /**
+     * Upserts an object into the collection. Since update and inserts are the same logic,
+     * this method handles both.
+     * @param object $object
+     * @param string $id
+     * @return void
+     */
     private function _upsert($object, $id = null)
     {
         $object = $this->_writeObjectToDb($object, $id);
@@ -310,6 +438,14 @@ class Collection
         return $object;
     }
 
+    /**
+     * Part of the upsert process, this method contains logic to write an object
+     * to the database. This method will also add the appropriate meta data to the object
+     * and return it.
+     * @param object $object
+     * @param string $id
+     * @return object
+     */
     private function _writeObjectToDb($object, $id)
     {
         $objectId = (!is_null($id)) ? $id : $this->_generateUniqueId();
@@ -337,6 +473,11 @@ class Collection
         return $object;
     }
 
+    /**
+     * This method is used will return the count of objects contained with
+     * the collection.
+     * @return int
+     */
     private function _countObjectsInCollection()
     {
         $select = Statement::get(
@@ -353,6 +494,11 @@ class Collection
         }
     }
 
+    /**
+     * This method is used to return an object count by the filter that is passed in.
+     * @param Filter $filterQuery
+     * @return int
+     */
     private function _countObjectsInCollectionByFilter(Filter $filterQuery)
     {
         $records = [];

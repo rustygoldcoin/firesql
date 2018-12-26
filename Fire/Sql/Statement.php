@@ -31,6 +31,10 @@ class Statement
             'DELETE_OBJECT' =>
                 'DELETE FROM __object ' .
                 'WHERE id = @id;',
+            'DELETE_OBJECT_EXCEPT_REVISION' =>
+                'DELETE FROM __object ' .
+                'WHERE id = @id ' .
+                'AND NOT revision = @revision;',
             'DELETE_OBJECT_INDEX' =>
                 'DELETE FROM __index ' .
                 'WHERE id = @id;',
