@@ -9,7 +9,7 @@ use \Fire\Sql\Connector;
 
 class Collection
 {
-
+//'@collection' => $this->_connector->quote($this->_name)
     /**
      * The connection to the database.
      * @var \Fire\Sql\Connector
@@ -112,13 +112,15 @@ class Collection
         $delete = Statement::get(
             'DELETE_OBJECT_INDEX',
             [
-                '@id' => $this->_connector->quote($id)
+                '@id' => $this->_connector->quote($id),
+                '@collection' => $this->_connector->quote($this->_name)
             ]
         );
         $delete .= Statement::get(
             'DELETE_OBJECT',
             [
-                '@id' => $this->_connector->quote($id)
+                '@id' => $this->_connector->quote($id),
+                '@collection' => $this->_connector->quote($this->_name)
             ]
         );
 
@@ -163,7 +165,8 @@ class Collection
                 'DELETE_OBJECT_EXCEPT_REVISION',
                 [
                     '@id' => $this->_connector->quote($id),
-                    '@revision' => $this->_connector->quote($revision)
+                    '@revision' => $this->_connector->quote($revision),
+                    '@collection' => $this->_connector->quote($this->_name)
                 ]
             );
         }
@@ -171,7 +174,8 @@ class Collection
             'UPDATE_OBJECT_TO_COMMITTED',
             [
                 '@id' => $this->_connector->quote($id),
-                '@revision' => $this->_connector->quote($revision)
+                '@revision' => $this->_connector->quote($revision),
+                '@collection' => $this->_connector->quote($this->_name)
             ]
         );
 
@@ -242,7 +246,8 @@ class Collection
             $select = Statement::get(
                 'GET_CURRENT_OBJECT',
                 [
-                    '@id' => $this->_connector->quote($id)
+                    '@id' => $this->_connector->quote($id),
+                    '@collection' => $this->_connector->quote($this->_name)
                 ]
             );
             $record = $this->_connector->query($select)->fetch();
@@ -263,7 +268,8 @@ class Collection
         $select = Statement::get(
             'GET_OBJECT_ORIGIN_DATE',
             [
-                '@id' => $this->_connector->quote($id)
+                '@id' => $this->_connector->quote($id),
+                '@collection' => $this->_connector->quote($this->_name)
             ]
         );
         $record = $this->_connector->query($select)->fetch();
@@ -383,7 +389,8 @@ class Collection
         $update = Statement::get(
             'DELETE_OBJECT_INDEX',
             [
-                '@id' => $this->_connector->quote($object->__id)
+                '@id' => $this->_connector->quote($object->__id),
+                '@collection' => $this->_connector->quote($this->_name)
             ]
         );
         //parse each property of the object an attempt to index each value

@@ -4,7 +4,7 @@ namespace Fire\Sql;
 
 class Statement
 {
-
+    //WHERE collection = @collection AND
     static private $_statements;
 
     static public function init()
@@ -30,24 +30,24 @@ class Statement
                 ');',
             'DELETE_OBJECT' =>
                 'DELETE FROM __object ' .
-                'WHERE id = @id;',
+                'WHERE collection = @collection AND id = @id;',
             'DELETE_OBJECT_EXCEPT_REVISION' =>
                 'DELETE FROM __object ' .
-                'WHERE id = @id ' .
+                'WHERE collection = @collection AND id = @id ' .
                 'AND NOT revision = @revision;',
             'DELETE_OBJECT_INDEX' =>
                 'DELETE FROM __index ' .
-                'WHERE id = @id;',
+                'WHERE collection = @collection AND id = @id;',
             'GET_CURRENT_OBJECT' =>
                 'SELECT obj ' .
                 'FROM __object ' .
-                'WHERE id = @id AND committed = 1 ' .
+                'WHERE collection = @collection AND id = @id AND committed = 1 ' .
                 'ORDER BY updated DESC ' .
                 'LIMIT 1;',
             'GET_OBJECT_ORIGIN_DATE' =>
                 'SELECT updated ' .
                 'FROM __object ' .
-                'WHERE id = @id AND committed = 1 ' .
+                'WHERE collection = @collection AND id = @id AND committed = 1 ' .
                 'ORDER BY updated ASC ' .
                 'LIMIT 1;',
             'GET_OBJECTS_BY_FILTER' =>
@@ -85,7 +85,7 @@ class Statement
             'UPDATE_OBJECT_TO_COMMITTED' =>
                 'UPDATE __object ' .
                 'SET committed = 1 ' .
-                'WHERE id = @id ' .
+                'WHERE collection = @collection AND id = @id ' .
                 'AND revision = @revision;'
         ];
     }

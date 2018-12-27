@@ -1,5 +1,7 @@
 # Release Changes
 
+* 1.4.1
+    * Update collection->find() so that when it is called with a objectId is only looks for the object within the collection and not all objects in the database.
 * 1.4.0
     * Change the default behavior of upsertion. Currently, the default behavior is to track the history of any object in a collection. This change will update this functionality to make it an option rather than the default behavior. The new default behavior wil be to update any existing objects and not keep track of the history of an object.
 * 1.3.1
