@@ -1,4 +1,15 @@
 <?php
+/**
+ *    __  _____   ___   __          __
+ *   / / / /   | <  /  / /   ____ _/ /_  _____
+ *  / / / / /| | / /  / /   / __ `/ __ `/ ___/
+ * / /_/ / ___ |/ /  / /___/ /_/ / /_/ (__  )
+ * `____/_/  |_/_/  /_____/`__,_/_.___/____/
+ *
+ * @package FireStudio
+ * @author UA1 Labs Developers https://ua1.us
+ * @copyright Copyright (c) UA1 Labs
+ */
 
 namespace Fire\Sql;
 
@@ -9,7 +20,7 @@ use \Fire\Sql\Connector;
 
 class Collection
 {
-//'@collection' => $this->_connector->quote($this->_name)
+
     /**
      * The connection to the database.
      * @var \Fire\Sql\Connector
@@ -57,6 +68,11 @@ class Collection
         } else {
             $this->_options = (object) $defaultOptions;
         }
+
+        $createTables = Statement::get('CREATE_DB_TABLES', [
+            '@collection' => $this->_name
+        ]);
+        $this->_connector->exec($createTables);
     }
 
     /**
@@ -112,15 +128,15 @@ class Collection
         $delete = Statement::get(
             'DELETE_OBJECT_INDEX',
             [
-                '@id' => $this->_connector->quote($id),
-                '@collection' => $this->_connector->quote($this->_name)
+                '@collection' => $this->_name,
+                '@id' => $this->_connector->quote($id)
             ]
         );
         $delete .= Statement::get(
             'DELETE_OBJECT',
             [
-                '@id' => $this->_connector->quote($id),
-                '@collection' => $this->_connector->quote($this->_name)
+                '@collection' => $this->_name,
+                '@id' => $this->_connector->quote($id)
             ]
         );
 
@@ -164,18 +180,18 @@ class Collection
             $update .= Statement::get(
                 'DELETE_OBJECT_EXCEPT_REVISION',
                 [
+                    '@collection' => $this->_name,
                     '@id' => $this->_connector->quote($id),
-                    '@revision' => $this->_connector->quote($revision),
-                    '@collection' => $this->_connector->quote($this->_name)
+                    '@revision' => $this->_connector->quote($revision)
                 ]
             );
         }
         $update .= Statement::get(
             'UPDATE_OBJECT_TO_COMMITTED',
             [
+                '@collection' => $this->_name,
                 '@id' => $this->_connector->quote($id),
-                '@revision' => $this->_connector->quote($revision),
-                '@collection' => $this->_connector->quote($this->_name)
+                '@revision' => $this->_connector->quote($revision)
             ]
         );
 
@@ -246,8 +262,8 @@ class Collection
             $select = Statement::get(
                 'GET_CURRENT_OBJECT',
                 [
-                    '@id' => $this->_connector->quote($id),
-                    '@collection' => $this->_connector->quote($this->_name)
+                    '@collection' => $this->_name,
+                    '@id' => $this->_connector->quote($id)
                 ]
             );
             $record = $this->_connector->query($select)->fetch();
@@ -268,8 +284,8 @@ class Collection
         $select = Statement::get(
             'GET_OBJECT_ORIGIN_DATE',
             [
-                '@id' => $this->_connector->quote($id),
-                '@collection' => $this->_connector->quote($this->_name)
+                '@collection' => $this->_name,
+                '@id' => $this->_connector->quote($id)
             ]
         );
         $record = $this->_connector->query($select)->fetch();
@@ -312,7 +328,7 @@ class Collection
                 $joins[] =
                     'JOIN(' .
                         'SELECT id, val AS ' . $prop . ' ' .
-                        'FROM __index ' .
+                        'FROM ' . $this->_name . '__index ' .
                         'WHERE prop = \'' . $prop . '\'' .
                     ') AS ' . $asTbl . ' ' .
                     'ON A.id = ' . $asTbl . '.id';
@@ -322,9 +338,9 @@ class Collection
         $select = Statement::get(
             'GET_OBJECTS_BY_FILTER',
             [
+                '@collection' => $this->_name,
                 '@columns' => (count($props) > 0) ? ', ' . implode($props, ', ') : '',
                 '@joinColumns' => (count($joins) > 0) ? implode($joins, ' ') . ' ' : '',
-                '@collection' => $this->_connector->quote($this->_name),
                 '@type' => $this->_connector->quote($filterQuery->getIndexType()),
                 '@filters' => ($filters) ? 'AND (' . implode($filters, ' ') . ') ' : '',
                 '@order' => $filterQuery->getOrderBy(),
@@ -389,8 +405,8 @@ class Collection
         $update = Statement::get(
             'DELETE_OBJECT_INDEX',
             [
-                '@id' => $this->_connector->quote($object->__id),
-                '@collection' => $this->_connector->quote($this->_name)
+                '@collection' => $this->_name,
+                '@id' => $this->_connector->quote($object->__id)
             ]
         );
         //parse each property of the object an attempt to index each value
@@ -402,10 +418,10 @@ class Collection
                 $insert = Statement::get(
                     'INSERT_OBJECT_INDEX',
                     [
+                        '@collection' => $this->_name,
                         '@type' => $this->_connector->quote('value'),
                         '@prop' => $this->_connector->quote($property),
                         '@val' => $this->_connector->quote($value),
-                        '@collection' => $this->_connector->quote($this->_name),
                         '@id' => $this->_connector->quote($object->__id),
                         '@origin' => $this->_connector->quote($object->__origin)
                     ]
@@ -417,10 +433,10 @@ class Collection
         $insert = Statement::get(
             'INSERT_OBJECT_INDEX',
             [
+                '@collection' => $this->_name,
                 '@type' => $this->_connector->quote('registry'),
                 '@prop' => $this->_connector->quote(''),
                 '@val' => $this->_connector->quote(''),
-                '@collection' => $this->_connector->quote($this->_name),
                 '@id' => $this->_connector->quote($object->__id),
                 '@origin' => $this->_connector->quote($object->__origin)
             ]
@@ -467,7 +483,7 @@ class Collection
         $insert = Statement::get(
             'INSERT_OBJECT',
             [
-                '@collection' => $this->_connector->quote($this->_name),
+                '@collection' => $this->_name,
                 '@id' => $this->_connector->quote($object->__id),
                 '@revision' => $this->_connector->quote($object->__revision),
                 '@committed' => $this->_connector->quote(0),
@@ -490,7 +506,7 @@ class Collection
         $select = Statement::get(
             'GET_COLLECTION_OBJECT_COUNT',
             [
-                '@collection' => $this->_connector->quote($this->_name)
+                '@collection' => $this->_name
             ]
         );
         $count = $this->_connector->query($select)->fetch();
@@ -537,7 +553,7 @@ class Collection
                 $joins[] =
                     'JOIN(' .
                         'SELECT id, val AS ' . $prop . ' ' .
-                        'FROM __index ' .
+                        'FROM ' . $this->_name . '__index ' .
                         'WHERE prop = \'' . $prop . '\'' .
                     ') AS ' . $asTbl . ' ' .
                     'ON A.id = ' . $asTbl . '.id';
@@ -547,9 +563,9 @@ class Collection
         $select = Statement::get(
             'GET_OBJECTS_COUNT_BY_FILTER',
             [
+                '@collection' => $this->_name,
                 '@columns' => (count($props) > 0) ? ', ' . implode($props, ', ') : '',
                 '@joinColumns' => (count($joins) > 0) ? implode($joins, ' ') . ' ' : '',
-                '@collection' => $this->_connector->quote($this->_name),
                 '@type' => $this->_connector->quote($filterQuery->getIndexType()),
                 '@filters' => ($filters) ? 'AND (' . implode($filters, ' ') . ') ' : ''
             ]

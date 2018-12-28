@@ -30,8 +30,6 @@ class Sql
     {
         $this->_connector = new Connector($pdo);
         $this->_collections = [];
-        $createTables = Statement::get('CREATE_DB_TABLES');
-        $this->_connector->exec($createTables);
     }
 
     /**

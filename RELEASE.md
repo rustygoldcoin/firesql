@@ -1,5 +1,7 @@
 # Release Changes
 
+* 2.0.0
+    * Change database table structure so that a collection has its own set of tables and all collections do not continue to share the same two tables.
 * 1.4.1
     * Update collection->find() so that when it is called with a objectId is only looks for the object within the collection and not all objects in the database.
 * 1.4.0
