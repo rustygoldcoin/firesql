@@ -115,7 +115,7 @@ class Collection
      */
     public function update($id, $object)
     {
-        $this->_upsert($object, $id);
+        return $this->_upsert($object, $id);
     }
 
     /**

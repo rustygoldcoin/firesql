@@ -1,5 +1,7 @@
 # Release Changes
 
+* 2.0.1
+    * Update Collection::update() method to return the updated object so a client knows when an object is truely updated.
 * 2.0.0
     * Change database table structure so that a collection has its own set of tables and all collections do not continue to share the same two tables.
 * 1.4.1
