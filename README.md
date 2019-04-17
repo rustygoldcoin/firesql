@@ -8,7 +8,7 @@ Set your SQL database on fire by making it into a NoSQL database!
 - [Finding Objects](#finding-objects)
 - [Advance Filtering](#advance-filtering)
 - [API](#api)
-- [FireBug Debug Panel](#fireBug-debug-anel)
+- [FireBug Debug Panel](#fireBug-debug-panel)
 
 ## Why Build NoSQL Funcitonality On a Relational Database?
 
@@ -147,11 +147,66 @@ OR Logic is just as simple as AND logic. With OR logic, you would just simple gr
     $search = '[{"name":"josh"},{"name":"steve"}]';
     $objects = $collection->find($search);
 
-*Magic Filters*
+*Magic Filter Methods*
 
-## Advance Filtering
+Built in the concept of simple filters is the ability to further manipulate the collection of objects before it gets returned to you. Below you will find each method and a description of how it will manipulate the collection set.
+
+| Method | Description | Example |
+| - | - | - |
+| length | This method sets the number of objects you want to be returned from the entire collection | {"length": "100"} |
+| offset | This method sets how we should offset the dataset by | {"offset": "10"} |
+| order | This method dictates which field the dataset will be ordered by | {"order": "field"} |
+| reverse | This method will determine if the order should be reversed from its natural accending order | {"reverse": true} |
 
 ## API
+
+#### \Fire\Sql
+
+    /**
+     * Returns a collection object that will allow you to interact with the collection data.
+     * @param string $name
+     * @param array $options
+     * @return void
+     */
+    public function collection($name, $options = null)
+
+#### \Fire\Sql\Collection
+
+    /**
+     * Returns a collection of objects that match the filter criteria
+     * @param string|null|Fire\Sql\Filter $filter
+     * @return void
+     */
+    public function find($filter = null)
+
+    /**
+     * Inserts an object in the collection.
+     * @param object $object
+     * @return void
+     */
+    public function insert($object)
+
+    /**
+     * Updates and object in the collection.
+     * @param string $id
+     * @param object $object
+     * @return void
+     */
+    public function update($id, $object)
+
+    /**
+     * Deletes an object from the database.
+     * @param string $id The ID of the object you want to delete
+     * @return void
+     */
+    public function delete($id)
+
+    /**
+     * Returns the total number of objects in a collection.
+     * @param string|null|Fire\Sql\Filter $filter
+     * @return int
+     */
+    public function count($filter = null)
 
 ## FireBug Debug Panel
 

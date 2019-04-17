@@ -1,4 +1,15 @@
 <?php
+/**
+ *    __  _____   ___   __          __
+ *   / / / /   | <  /  / /   ____ _/ /_  _____
+ *  / / / / /| | / /  / /   / __ `/ __ `/ ___/
+ * / /_/ / ___ |/ /  / /___/ /_/ / /_/ (__  )
+ * `____/_/  |_/_/  /_____/`__,_/_.___/____/
+ *
+ * @package FireStudio
+ * @author UA1 Labs Developers https://ua1.us
+ * @copyright Copyright (c) UA1 Labs
+ */
 
 namespace Fire;
 
@@ -7,6 +18,10 @@ use \Fire\Sql\Connector;
 use \Fire\Sql\Collection;
 use \Fire\Sql\Statement;
 
+/**
+ * The class responsible for being the entry point into connecting
+ * to a database and obtaining a collection object.
+ */
 class Sql
 {
 
@@ -34,12 +49,10 @@ class Sql
 
     /**
      * Returns a collection object that will allow you to interact with the collection data.
-     *
      * Default $options:
      * [
      *     'versionTracking' => false
      * ]
-     *
      * @param string $name
      * @param array $options
      * @return void

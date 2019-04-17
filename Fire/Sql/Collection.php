@@ -18,6 +18,10 @@ use \Fire\Sql\Statement;
 use \Fire\Sql\Filter;
 use \Fire\Sql\Connector;
 
+/**
+ * The class that represents a collection. With the functionality built into this class
+ * you'll be able to create, read, update, and delete objects from within the collection.
+ */
 class Collection
 {
 
@@ -45,7 +49,6 @@ class Collection
      *
      * Default $options:
      * versionTracking | false | Determines if object updates should maintain the history.
-     *
      * @param string $name The name of the collection
      * @param PDO $pdo The connection to the database
      * @param array $options An array of options
