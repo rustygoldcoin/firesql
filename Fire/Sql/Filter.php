@@ -1,4 +1,15 @@
 <?php
+/**
+ *    __  _____   ___   __          __
+ *   / / / /   | <  /  / /   ____ _/ /_  _____
+ *  / / / / /| | / /  / /   / __ `/ __ `/ ___/
+ * / /_/ / ___ |/ /  / /___/ /_/ / /_/ (__  )
+ * `____/_/  |_/_/  /_____/`__,_/_.___/____/
+ *
+ * @package FireSQL
+ * @author UA1 Labs Developers https://ua1.us
+ * @copyright Copyright (c) UA1 Labs
+ */
 
 namespace Fire\Sql;
 
@@ -10,6 +21,12 @@ use \Fire\Sql\Filter\OrExpression;
 use \Fire\Sql\Filter\WhereExpression;
 use \Fire\Sql\Filter\LogicExpression;
 
+/**
+ * This class is responsbile for creating translating a set of conditions
+ * into a SQL statement for finding objects within a collection. The constructor
+ * of this class takes in a JSON string that will be interpreted into setup
+ * the filter to return the appropriate SQL Statement.
+ */
 class Filter {
 
     const INDEX_SEARCH_TYPE_VALUE = 'value';
@@ -34,10 +51,24 @@ class Filter {
     const METHOD_LOGIC_TYPE_LESSTHAN = 'lt';
     const METHOD_LOGIC_TYPE_LESSTHAN_EQUAL = 'lteq';
 
+    /**
+     * The indexType indicates which index types we should be using to query
+     * for objects within the database.
+     * @var string
+     */
     private $_indexType;
 
+    /**
+     * An array of LogicExpression objects that will be used build out
+     * the SQL query.
+     * @var array
+     */
     private $_comparisons;
 
+    /**
+     * The field we want order the objects in the returned collection by.
+     * @var string
+     */
     private $_orderBy;
 
     private $_reverse;

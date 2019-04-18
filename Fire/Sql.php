@@ -6,7 +6,7 @@
  * / /_/ / ___ |/ /  / /___/ /_/ / /_/ (__  )
  * `____/_/  |_/_/  /_____/`__,_/_.___/____/
  *
- * @package FireStudio
+ * @package FireSQL
  * @author UA1 Labs Developers https://ua1.us
  * @copyright Copyright (c) UA1 Labs
  */
@@ -20,7 +20,8 @@ use \Fire\Sql\Statement;
 
 /**
  * The class responsible for being the entry point into connecting
- * to a database and obtaining a collection object.
+ * to a database and obtaining a collection object to interact with
+ * the database.
  */
 class Sql
 {
@@ -55,7 +56,7 @@ class Sql
      * ]
      * @param string $name
      * @param array $options
-     * @return void
+     * @return \Fire\Sql\Collection
      */
     public function collection($name, $options = null)
     {

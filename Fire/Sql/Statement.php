@@ -1,11 +1,34 @@
 <?php
+/**
+ *    __  _____   ___   __          __
+ *   / / / /   | <  /  / /   ____ _/ /_  _____
+ *  / / / / /| | / /  / /   / __ `/ __ `/ ___/
+ * / /_/ / ___ |/ /  / /___/ /_/ / /_/ (__  )
+ * `____/_/  |_/_/  /_____/`__,_/_.___/____/
+ *
+ * @package FireSQL
+ * @author UA1 Labs Developers https://ua1.us
+ * @copyright Copyright (c) UA1 Labs
+ */
 
 namespace Fire\Sql;
 
+/**
+ * A class responsible for containing SQL statements and preparing them
+ * for execution.
+ */
 class Statement
 {
+    /**
+     * An array of SQL statements stored by keys.
+     * @var array
+     */
     static private $_statements;
 
+    /**
+     * Method responsible for initializing the array of SQL statements.
+     * @return void
+     */
     static public function init()
     {
         self::$_statements = [
@@ -84,6 +107,13 @@ class Statement
         ];
     }
 
+    /**
+     * This method is responsible for returning the associated SQL statement
+     * that has been prepared with the proper variables.
+     * @param string $sqlStatement The key associated with the SQL statement you want to return
+     * @param array $variables An array of variables
+     * @return string
+     */
     static public function get($sqlStatement, $variables = [])
     {
         if (!is_array(self::$_statements)) {
