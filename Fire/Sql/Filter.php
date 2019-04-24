@@ -71,12 +71,29 @@ class Filter {
      */
     private $_orderBy;
 
+    /**
+     * Determines if we will return the results in reverse order.
+     * @var boolean
+     */
     private $_reverse;
 
+    /**
+     * Determines how far we should offset the search by number of records.
+     * @var integer
+     */
     private $_offet;
 
+    /**
+     * The length of records we should return.
+     * @var integer
+     */
     private $_length;
 
+    /**
+     * The constructor
+     * @param string $queryString A JSON string that represents the filtering we want to
+     * acheive.
+     */
     public function __construct($queryString = null)
     {
         $this->_indexType = self::INDEX_SEARCH_TYPE_REGISTRY;
@@ -91,78 +108,146 @@ class Filter {
         }
     }
 
+    /**
+     * Adds a WHERE logic operator to the search statement.
+     * @param string $propertyName The name of the property you would like to search on
+     * @return \Fire\Sql\Filter\LogicExpression
+     */
     public function where($propertyName)
     {
         $this->indexType(self::INDEX_SEARCH_TYPE_VALUE);
         return $this->_addComparison(new WhereExpression($propertyName));
     }
 
+    /**
+     * Adds an AND logic operator to the search statement.
+     * @param string $propertyName The name of the property you would like to search on
+     * @return \Fire\Sql\Filter\LogicExpression
+     */
     public function and($propertyName)
     {
         return $this->_addComparison(new AndExpression($propertyName));
     }
 
+    /**
+     * Adds an OR logic operator to the search statement.
+     * @param string $propertyName The name of the property you would like to search on
+     * @return \Fire\Sql\Filter\LogicExpression
+     */
     public function or($propertyName)
     {
         return $this->_addComparison(new OrExpression($propertyName));
     }
 
+    /**
+     * Returns the comparisons registered.
+     * @return array
+     */
     public function getComparisons()
     {
         return $this->_comparisons;
     }
 
+    /**
+     * Sets the offset.
+     * @param integer $offset
+     * @return void
+     */
     public function offset($offset)
     {
         $this->_offset = $offset;
     }
 
+    /**
+     * Gets the offset.
+     * @return integer
+     */
     public function getOffset()
     {
         return $this->_offset;
     }
 
+    /**
+     * Sets the length.
+     * @param integer $length
+     * @return void
+     */
     public function length($length)
     {
         $this->_length = $length;
     }
 
+    /**
+     * Gets the length.
+     * @return integer
+     */
     public function getLength()
     {
         return $this->_length;
     }
 
+    /**
+     * Sets the orderby field
+     * @param string $propertyName
+     * @return void
+     */
     public function orderBy($propertyName)
     {
         $this->_orderBy = $propertyName;
         $this->_addComparison(new LogicExpression($propertyName));
     }
 
+    /**
+     * Gets the orderby field
+     * @return string
+     */
     public function getOrderBy()
     {
         return $this->_orderBy;
     }
 
+    /**
+     * Sets the reverse
+     * @param boolean $reverse
+     * @return void
+     */
     public function reverse($reverse)
     {
         $this->_reverse = $reverse;
     }
 
+    /**
+     * Gets the reverse
+     * @return boolean
+     */
     public function getReverse()
     {
         return $this->_reverse;
     }
 
+    /**
+     * Sets the index type
+     * @param string $type
+     * @return void
+     */
     public function indexType($type)
     {
         $this->_indexType = $type;
     }
 
+    /**
+     * Gets the index type
+     * @return string
+     */
     public function getIndexType()
     {
         return $this->_indexType;
     }
 
+    /**
+     * Returns the filter model
+     * @return object
+     */
     public function filter()
     {
         return (object) [
@@ -175,6 +260,11 @@ class Filter {
         ];
     }
 
+    /**
+     * Used to add logic expressions to the _comparisons array.
+     * @param LogicExpression $logicExpression
+     * @return \Fire\Sql\Filter\LogicExpression
+     */
     private function _addComparison(LogicExpression $logicExpression) {
         $this->_comparisons[] = $logicExpression;
         end($this->_comparisons);
@@ -182,6 +272,12 @@ class Filter {
         return $this->_comparisons[$i];
     }
 
+    /**
+     * Logic used to parse the JSON $queryString from the constructor and set the
+     * appropriate _comparisons, _length, _reverse, etc.
+     * @param string $queryString
+     * @return void
+     */
     private function _parseQueryString($queryString)
     {
         $queryObjs = json_decode($queryString);
@@ -216,6 +312,14 @@ class Filter {
         }
     }
 
+    /**
+     * Adds a comparison to the filter from the queryString
+     * @param boolean $firstObj
+     * @param boolean $firstProperty
+     * @param string $property
+     * @param mixed $value
+     * @return void
+     */
     private function _addFilterComparison($firstObj, $firstProperty, $property, $value)
     {
         if ($firstObj && $firstProperty) {
@@ -227,6 +331,13 @@ class Filter {
         }
     }
 
+    /**
+     * Parses comparisons and adds logic to the filter.
+     * @param string $compareLogic
+     * @param string $property
+     * @param mixed $value
+     * @return void
+     */
     private function _parseComparison($compareLogic, $property, $value)
     {
         switch ($property) {
@@ -250,6 +361,11 @@ class Filter {
         }
     }
 
+    /**
+     * Returns comparison value and type
+     * @param mixed $val
+     * @return object
+     */
     private function _extractComparisonTypeAndValue($val)
     {
         $validComparisons = [
