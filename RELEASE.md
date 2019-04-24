@@ -1,5 +1,6 @@
 # Release Changes
-
+* 2.1.0
+    * Adding documentation for source code and README.
 * 2.0.1
     * Update Collection::update() method to return the updated object so a client knows when an object is truely updated.
 * 2.0.0
