@@ -1,6 +1,6 @@
 {
     "name": "ua1-labs/firesql",
-    "version": "2.1.0",
+    "version": "3.0.0",
     "description": "Set your SQL database on fire by making it into a NoSQL database.",
     "type": "library",
     "keywords": [
@@ -23,10 +23,11 @@
         }
     ],
     "require": {
-        "ua1-labs/firebug": "1.*"
+        "ua1-labs/firebug": "2.*",
+        "ua1-labs/firedi": "2.*"
     },
     "require-dev": {
-        "ua1-labs/firetest": "1.*"
+        "ua1-labs/firetest": "2.*"
     },
     "autoload": {
         "files": [
