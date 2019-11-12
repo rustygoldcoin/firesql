@@ -17,47 +17,95 @@ namespace \UA1Labs\Fire\Bug;
 class SqlStatement
 {
 
-    private $_statement;
+    /**
+     * The SQL statement.
+     *
+     * @var string
+     */
+    private $statement;
 
-    private $_time;
+    /**
+     * The SQL expression execution time in milliseconds
+     *
+     * @var float
+     */
+    private $time;
 
-    private $_trace;
+    /**
+     * The PHP stack trace
+     *
+     * @var array
+     */
+    private $trace;
 
+    /**
+     * The class constructor.
+     */
     public function __construct()
     {
-        $this->_statement = '';
-        $this->_time = 0;
-        $this->_trace = [];
+        $this->statement = '';
+        $this->time = 0;
+        $this->trace = [];
     }
 
+    /**
+     * Sets the SQL statement.
+     *
+     * @param string $statement
+     */
     public function setStatement($statement)
     {
-        $this->_statement = $statement;
+        $this->statement = $statement;
     }
 
+    /**
+     * Returns the SQL statement.
+     *
+     * @return string
+     */
     public function getStatement()
     {
-        return $this->_statement;
+        return $this->statement;
     }
 
+    /**
+     * Sets the time.
+     *
+     * @param float $time
+     */
     public function setTime($time)
     {
-        $this->_time = $time;
+        $this->time = $time;
     }
 
+    /**
+     * Returns the time.
+     *
+     * @return float
+     */
     public function getTime()
     {
-        return $this->_time;
+        return $this->time;
     }
 
+    /**
+     * Returns the stacktrace.
+     *
+     * @return array
+     */
     public function getTrace()
     {
-        return $this->_trace;
+        return $this->trace;
     }
 
+    /**
+     * Sets the stacktrace
+     *
+     * @param array $trace
+     */
     public function setTrace($trace)
     {
-        $this->_trace = $trace;
+        $this->trace = $trace;
     }
 
 }

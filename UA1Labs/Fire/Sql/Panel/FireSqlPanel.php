@@ -25,11 +25,11 @@ class FireSqlPanel extends Panel
 {
 
     const ID = 'firesql';
-    const NAME = 'FireSQL {{count}}';
+    const NAME = 'FireSql Queries {{count}}';
 
     /**
      * An array of sql statement objects.
-     * 
+     *
      * @var array<\UA1Labs\Fire\Sql\Statement>;
      */
     private $statements;
@@ -40,12 +40,13 @@ class FireSqlPanel extends Panel
     public function __construct()
     {
         $this->statements = [];
-        parent::__construct(self::ID, self::NAME, __DIR__ . '/firesql.phtml');
+        $template = __DIR__ . '/firesql.php';
+        parent::__construct(self::ID, self::NAME, $template);
     }
 
     /**
      * Adds a sql statement object to the statements array.
-     * 
+     *
      * @param \UA1Labs\Fire\Sql\Statement $statement The sql statement
      */
     public function addSqlStatement(Statement $statement)
@@ -55,7 +56,7 @@ class FireSqlPanel extends Panel
 
     /**
      * Returns all of the sql statements.
-     * 
+     *
      * @return array<\UA1Labs\Fire\Sql\Statement>
      */
     public function getSqlStatements()

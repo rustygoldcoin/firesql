@@ -11,7 +11,7 @@
  * @copyright Copyright (c) UA1 Labs
  */
 
-namespace Fire\Sql;
+namespace UA1Labs\Fire\Sql;
 
 use \Exception;
 use \Fire\SqlException;
