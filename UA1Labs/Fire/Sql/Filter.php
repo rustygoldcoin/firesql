@@ -357,7 +357,6 @@ class Filter {
      * @param string $compareLogic
      * @param string $property
      * @param mixed $value
-     * @return void
      */
     private function parseComparison($compareLogic, $property, $value)
     {

@@ -15,7 +15,7 @@
 namespace UA1Labs\Fire\Sql\Panel;
 
 use \UA1Labs\Fire\Bug\Panel;
-use \UA1Labs\Fire\Sql\Statement;
+use \UA1Labs\Fire\Sql\Panel\SqlStatement;
 
 /**
  * The class that represents the debug panel when you're using
@@ -30,7 +30,7 @@ class FireSqlPanel extends Panel
     /**
      * An array of sql statement objects.
      *
-     * @var array<\UA1Labs\Fire\Sql\Statement>;
+     * @var array<\UA1Labs\Fire\Sql\Panel\SqlStatement>;
      */
     private $statements;
 
@@ -47,9 +47,9 @@ class FireSqlPanel extends Panel
     /**
      * Adds a sql statement object to the statements array.
      *
-     * @param \UA1Labs\Fire\Sql\Statement $statement The sql statement
+     * @param \UA1Labs\Fire\Sql\Panel\SqlStatement $statement The sql statement
      */
-    public function addSqlStatement(Statement $statement)
+    public function addSqlStatement(SqlStatement $statement)
     {
         $this->statements[] = $statement;
     }
@@ -57,7 +57,7 @@ class FireSqlPanel extends Panel
     /**
      * Returns all of the sql statements.
      *
-     * @return array<\UA1Labs\Fire\Sql\Statement>
+     * @return array<\UA1Labs\Fire\Sql\Panel\SqlStatement>
      */
     public function getSqlStatements()
     {

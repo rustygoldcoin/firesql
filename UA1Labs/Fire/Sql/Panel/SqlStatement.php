@@ -12,7 +12,7 @@
  * @copyright Copyright (c) UA1 Labs
  */
 
-namespace \UA1Labs\Fire\Bug;
+namespace \UA1Labs\Fire\Sql\Panel;
 
 class SqlStatement
 {

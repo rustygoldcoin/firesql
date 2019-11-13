@@ -12,7 +12,30 @@
  * @copyright Copyright (c) UA1 Labs
  */
 
-if (class_exists(\UA1Labs\Fire\Bug)) {
-    $fireBug = \UA1Labs\Fire\Bug::get();
-    $fireBug->addPanel(new \UA1Labs\Fire\Bug\Panel\FireSqlPanel());
+namespace Test\UA1Labs\Fire;
+
+use \UA1Labs\Fire\Test\TestCase;
+
+/**
+ * Exception class for FireSql Exceptions
+ */
+class SqlTestCase extends TestCase
+{
+
+    private $fireSql;
+
+    public function beforeEach()
+    {
+        $this->fireSql = '';
+    }
+
+}
+
+/**
+ * Mock Classes
+ */
+
+class PDOMock extends PDO
+{
+
 }

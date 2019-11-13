@@ -15,9 +15,8 @@
 namespace UA1Labs\Fire\Sql;
 
 use \PDO;
-use \UA1Labs\Fire\Bug;
 use \UA1Labs\Fire\Bug\Panel\FireSqlPanel;
-use \UA1Labs\Fire\Bug\SqlStatement;
+use \UA1Labs\Fire\Sql\Panel\SqlStatement;
 
 /**
  * This class is responsible for connecting and interacting with the database
@@ -50,7 +49,10 @@ class Connector
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
-        $this->fireBug = Bug::get();
+
+        if (class_exists(\UA1Labs\Fire\Bug)) {
+            $this->fireBug = \UA1Labs\Fire\Bug::get();
+        }
     }
 
     /**
@@ -114,13 +116,15 @@ class Connector
      */
     private function recordSqlStatement($start, $sql, $trace)
     {
-        $sqlStatement = new SqlStatement();
-        $sqlStatement->setStatement($sql);
-        $sqlStatement->setTime($this->fireBug->timer($start));
-        $sqlStatement->setTrace($trace);
-        $this->fireBug
-            ->getPanel(FireSqlPanel::ID)
-            ->addSqlStatement($sqlStatement);
+        if ($this->fireBug) {
+            $sqlStatement = new SqlStatement();
+            $sqlStatement->setStatement($sql);
+            $sqlStatement->setTime($this->fireBug->timer($start));
+            $sqlStatement->setTrace($trace);
+            $this->fireBug
+                ->getPanel(FireSqlPanel::ID)
+                ->addSqlStatement($sqlStatement);
+        }
     }
 
 }

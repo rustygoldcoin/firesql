@@ -22,12 +22,11 @@
             "email": "development@ua1.us"
         }
     ],
-    "require": {
+    "require": {},
+    "require-dev": {
+        "ua1-labs/firetest": "2.*",
         "ua1-labs/firebug": "2.*",
         "ua1-labs/firedi": "2.*"
-    },
-    "require-dev": {
-        "ua1-labs/firetest": "2.*"
     },
     "scripts": {
         "test": "php vendor/ua1-labs/firetest/scripts/runner.php --dir=/UA1Labs --ext=.TestCase.php"
