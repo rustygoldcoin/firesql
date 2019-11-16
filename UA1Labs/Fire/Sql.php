@@ -1,4 +1,5 @@
 <?php
+
 /**
  *    __  _____   ___   __          __
  *   / / / /   | <  /  / /   ____ _/ /_  _____
@@ -6,17 +7,17 @@
  * / /_/ / ___ |/ /  / /___/ /_/ / /_/ (__  )
  * `____/_/  |_/_/  /_____/`__,_/_.___/____/
  *
- * @package FireSQL
+ * @package FireSql
  * @author UA1 Labs Developers https://ua1.us
  * @copyright Copyright (c) UA1 Labs
  */
 
-namespace Fire;
+namespace UA1Labs\Fire;
 
 use \PDO;
-use \Fire\Sql\Connector;
-use \Fire\Sql\Collection;
-use \Fire\Sql\Statement;
+use \UA1Labs\Fire\Sql\Connector;
+use \UA1Labs\Fire\Sql\Collection;
+use \UA1Labs\Fire\Sql\Di;
 
 /**
  * The class responsible for being the entry point into connecting
@@ -28,24 +29,27 @@ class Sql
 
     /**
      * Array of collections as cached objects.
-     * @var array
+     *
+     * @var array<\UA1Labs\Fire\Sql\Collection>
      */
-    private $_collections;
+    private $collections;
 
     /**
      * The connector class that stores the DB connection infomation.
-     * @var \Fire\Sql\Connector
+     *
+     * @var \UA1Labs\Fire\Sql\Connector
      */
-    private $_connector;
+    private $connector;
 
     /**
-     * The Constructor
+     * The class constructor.
+     *
      * @param \PDO $pdo
      */
     public function __construct(PDO $pdo)
     {
-        $this->_connector = new Connector($pdo);
-        $this->_collections = [];
+        $this->connector = new Connector($pdo);
+        $this->collections = [];
     }
 
     /**
@@ -54,17 +58,18 @@ class Sql
      * [
      *     'versionTracking' => false
      * ]
-     * @param string $name
-     * @param array $options
-     * @return \Fire\Sql\Collection
+     *
+     * @param string $name The name of the collection
+     * @param array $options The collection options
+     * @return \UA1Labs\Fire\Sql\Collection
      */
     public function collection($name, $options = null)
     {
-        if (!isset($this->_collections[$name])) {
-            $this->_collections[$name] = new Collection($name, $this->_connector, $options);
+        if (!isset($this->collections[$name])) {
+            $this->collections[$name] = new Collection($name, $this->connector, $options);
         }
 
-        return $this->_collections[$name];
+        return $this->collections[$name];
     }
 
 }

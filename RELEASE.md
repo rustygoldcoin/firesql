@@ -1,4 +1,7 @@
 # Release Changes
+* 3.0.0
+    * Uplifting code to be in line with UA1 Labs 2.0 standards.
+    * Added test cases.
 * 2.1.0
     * Adding documentation for source code and README.
 * 2.0.1

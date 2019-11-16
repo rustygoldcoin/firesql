@@ -1,4 +1,5 @@
 <?php
+
 /**
  *    __  _____   ___   __          __
  *   / / / /   | <  /  / /   ____ _/ /_  _____
@@ -6,12 +7,12 @@
  * / /_/ / ___ |/ /  / /___/ /_/ / /_/ (__  )
  * `____/_/  |_/_/  /_____/`__,_/_.___/____/
  *
- * @package FireSQL
+ * @package FireSql
  * @author UA1 Labs Developers https://ua1.us
  * @copyright Copyright (c) UA1 Labs
  */
 
-namespace Fire\Sql;
+namespace UA1Labs\Fire\Sql;
 
 /**
  * A class responsible for containing SQL statements and preparing them
@@ -21,17 +22,19 @@ class Statement
 {
     /**
      * An array of SQL statements stored by keys.
-     * @var array
+     *
+     * @var array<string>
      */
-    static private $_statements;
+    static private $statements;
 
     /**
      * Method responsible for initializing the array of SQL statements.
+     *
      * @return void
      */
     static public function init()
     {
-        self::$_statements = [
+        self::$statements = [
             'CREATE_DB_TABLES' =>
                 'CREATE TABLE IF NOT EXISTS @collection__object (' .
                     'id TEXT NOT NULL, ' .
@@ -110,16 +113,17 @@ class Statement
     /**
      * This method is responsible for returning the associated SQL statement
      * that has been prepared with the proper variables.
+     *
      * @param string $sqlStatement The key associated with the SQL statement you want to return
      * @param array $variables An array of variables
      * @return string
      */
     static public function get($sqlStatement, $variables = [])
     {
-        if (!is_array(self::$_statements)) {
+        if (!is_array(self::$statements)) {
             self::init();
         }
-        $sql = self::$_statements[$sqlStatement];
+        $sql = self::$statements[$sqlStatement];
         if ($variables) {
             foreach ($variables as $variable => $value) {
                 $sql = str_replace($variable, $value, $sql);

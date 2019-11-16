@@ -26,8 +26,8 @@ FireSQL is registered with [Composer](https://packagist.org/packages/ua1-labs/fi
 
 To connect FireSQL to your database, you have to provide a standard PHP PDO object at the instanciation of the FireSQL Class. **NOTE: Currently, the only two database types FireSQL supports is MySQL and SQLite.**
 
-    $pdo = new PDO('sqlite:' . __DIR__ . '/demo.db');
-    $db = new Fire\Sql($pdo);
+    $pdo = new \PDO('sqlite:' . __DIR__ . '/demo.db');
+    $db = new \UA1Labs\Fire\Sql($pdo);
 
 ### Getting A Collection
 
@@ -157,56 +157,3 @@ Built in the concept of simple filters is the ability to further manipulate the 
 | offset | This method sets how we should offset the dataset by | {"offset": "10"} |
 | order | This method dictates which field the dataset will be ordered by | {"order": "field"} |
 | reverse | This method will determine if the order should be reversed from its natural accending order | {"reverse": true} |
-
-## API
-
-#### \Fire\Sql
-
-    /**
-     * Returns a collection object that will allow you to interact with the collection data.
-     * @param string $name
-     * @param array $options
-     * @return void
-     */
-    public function collection($name, $options = null)
-
-#### \Fire\Sql\Collection
-
-    /**
-     * Returns a collection of objects that match the filter criteria
-     * @param string|null|Fire\Sql\Filter $filter
-     * @return void
-     */
-    public function find($filter = null)
-
-    /**
-     * Inserts an object in the collection.
-     * @param object $object
-     * @return void
-     */
-    public function insert($object)
-
-    /**
-     * Updates and object in the collection.
-     * @param string $id
-     * @param object $object
-     * @return void
-     */
-    public function update($id, $object)
-
-    /**
-     * Deletes an object from the database.
-     * @param string $id The ID of the object you want to delete
-     * @return void
-     */
-    public function delete($id)
-
-    /**
-     * Returns the total number of objects in a collection.
-     * @param string|null|Fire\Sql\Filter $filter
-     * @return int
-     */
-    public function count($filter = null)
-
-## FireBug Debug Panel
-
