@@ -91,9 +91,7 @@ class Collection
     public function find($filter = null)
     {
         if (is_string($filter)) {
-            json_decode($filter);
-            $isJson = (json_last_error() === JSON_ERROR_NONE) ? true :false;
-            if ($isJson) {
+            if ($this->isValidJson($filter)) {
                 $filter = new Filter($filter);
                 return $this->getObjectsByFilter($filter);
             } else {
@@ -172,6 +170,15 @@ class Collection
             return $this->countObjectsInCollectionByFilter($filter);
         }
         return 0;
+    }
+
+    private function isValidJson($json)
+    {
+        return (
+            is_string($json)
+            && is_array(json_decode($json, true))
+            && (json_last_error() === JSON_ERROR_NONE)
+        );
     }
 
     /**

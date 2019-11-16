@@ -121,23 +121,75 @@ class CollectionTestCase extends TestCase
 
     public function testFind()
     {
-        for ($i = 1; $i <= 10; $i++) {
+        $odd = true;
+        for ($i = 1; $i <= 6; $i++) {
             $obj = (object) [
                 'i' => $i,
-                'rand' => 10
+                'odd' => $odd,
+                'collection' => ($i <= 3) ? 1 : 2
             ];
+            $odd = !$odd;
             $lastObj = $this->collection->insert($obj);
         }
+
+        // tests when just a string id is passed in $collectino->find("3daj32j235242j52342jgadj32");
         $this->should('Return the correct object if we pass in the ID of the object.');
         $obj = $this->collection->find($lastObj->__id);
         $this->assert($obj->i === $lastObj->i);
 
+        // tests that a single item is returned when we pass an ID into ::find()
+        $this->should('Return a single object when the pass in an ID for a single object.');
+        $this->assert(is_object($obj));
+
+        // tests when a simple JSON string is passed in $collection->find('{"i": 2}')
         $this->should('Return the correct object if we query by basic JSON string.');
         $response = $this->collection->find('{"i": 2}');
         $this->assert($response[0]->i === 2);
 
+        // tests that when a we are using a JSON search query, the response is an array
+        $this->should('Return an array when we use a JSON search query to find objects in the collection.');
+        $this->assert(is_array($response));
 
+        // tests when an AND condition exists in the JSON string
+        $this->should('Return the correct objects if we query by JSON string with multiple conditions.');
+        $response = $this->collection->find('{"i": 2, "odd": false}');
+        $this->assert(isset($response[0]) && $response[0]->i === 2);
 
+        // tests when an AND condition exists and we would expect to get no results
+        $this->should('Returns 0 results because the and condition will include a combination that does not exist');
+        $response = $this->collection->find('{"i": 2, "odd": true}');
+        $this->assert(is_array($response) && empty($response));
+
+        // tests to ensure we are getting correct collections back with AND conditions
+        $this->should('Return objects in collection 1 where odd is true.');
+        $response = $this->collection->find('{"odd": true, "collection": 1}');
+        $this->assert(count($response) === 2);
+        $is = [1, 3];
+        foreach ($response as $obj) {
+            $this->should('Return a response that contains an index we expect.');
+            $this->assert(in_array($obj->i, $is));
+        }
+
+        // tests to ensure that we are getting correct results for an OR condition
+        $this->should('Return a correct response of an OR condition.');
+        $response = $this->collection->find('[{"odd": true},{"odd": false}]');
+        $this->assert(count($response) === 6);
+
+        // tests to ensure that we are getting correct results when OR statement only includes 1 match
+        $this->should('Return a correct response for a query with an OR statement that is only half true.');
+        $response = $this->collection->find('[{"odd": true},{"i": 10}]');
+        $this->assert(count($response) === 3);
+    }
+
+    public function testCount()
+    {
+        $this->should('Return the correct count for OR statements.');
+        $count = $this->collection->count('[{"odd": true},{"i": 10}]');
+        $this->assert($count === 3);
+
+        $this->should('Return the correct count for all objects in collection.');
+        $count = $this->collection->count('{}');
+        $this->assert($count === 8);
     }
 
 }
