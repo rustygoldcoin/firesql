@@ -15,8 +15,9 @@
 namespace UA1Labs\Fire\Sql;
 
 use \PDO;
-use \UA1Labs\Fire\Bug\Panel\FireSqlPanel;
+use \UA1Labs\Fire\Sql\Panel\FireSqlPanel;
 use \UA1Labs\Fire\Sql\Panel\SqlStatement;
+use \UA1Labs\Fire\Bug;
 
 /**
  * This class is responsible for connecting and interacting with the database
@@ -48,10 +49,9 @@ class Connector
      */
     public function __construct(PDO $pdo)
     {
-        $this->pdo = $pdo;
-
-        if (class_exists(\UA1Labs\Fire\Bug)) {
-            $this->fireBug = \UA1Labs\Fire\Bug::get();
+        $this->setPdo($pdo);
+        if ($this->isFireBugPresent()) {
+            $this->setFireBug(Bug::get());
         }
     }
 
@@ -63,11 +63,15 @@ class Connector
      */
     public function exec($sql) {
         // get start time of sql execution
-        $start = $this->fireBug->timer();
+        if ($this->isFireBugPresent()) {
+            $start = $this->fireBug->timer();
+        }
+
         // execute sql
         $this->pdo->exec($sql);
+
         // record sql statement
-        if ($this->fireBug->isEnabled()) {
+        if ($this->isFireBugPresent() && $this->fireBug->isEnabled()) {
             $trace = debug_backtrace();
             $this->recordSqlStatement($start, $sql, $trace);
         }
@@ -83,11 +87,15 @@ class Connector
     public function query($sql)
     {
         // get start time of sql execution
-        $start = $this->fireBug->timer();
+        if ($this->isFireBugPresent()) {
+            $start = $this->fireBug->timer();
+        }
+
         // execute sql
         $records = $this->pdo->query($sql);
+
         // record sql statement
-        if ($this->fireBug->isEnabled()) {
+        if ($this->isFireBugPresent() && $this->fireBug->isEnabled()) {
             $trace = debug_backtrace();
             $this->recordSqlStatement($start, $sql, $trace);
         }
@@ -104,6 +112,26 @@ class Connector
     public function quote($statement)
     {
         return $this->pdo->quote($statement);
+    }
+
+    /**
+     * Sets the PDO object
+     *
+     * @param PDO $pdo
+     */
+    private function setPdo(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
+    /**
+     * Sets the FireBug object
+     *
+     * @param \UA1Labs\Fire\Bug $fireBug
+     */
+    private function setFireBug(Bug $fireBug)
+    {
+        $this->fireBug = $fireBug;
     }
 
     /**
@@ -125,6 +153,16 @@ class Connector
                 ->getPanel(FireSqlPanel::ID)
                 ->addSqlStatement($sqlStatement);
         }
+    }
+
+    /**
+     * Determines if FireBug is included in the environment
+     *
+     * @return boolean
+     */
+    private function isFireBugPresent()
+    {
+        return class_exists('\UA1Labs\Fire\Bug');
     }
 
 }

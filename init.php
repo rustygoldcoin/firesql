@@ -12,7 +12,7 @@
  * @copyright Copyright (c) UA1 Labs
  */
 
-if (class_exists(\UA1Labs\Fire\Bug)) {
+if (class_exists('\UA1Labs\Fire\Bug')) {
     $fireBug = \UA1Labs\Fire\Bug::get();
-    $fireBug->addPanel(new \UA1Labs\Fire\Bug\Panel\FireSqlPanel());
+    $fireBug->addPanel(new \UA1Labs\Fire\Sql\Panel\FireSqlPanel());
 }

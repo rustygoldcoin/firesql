@@ -54,7 +54,7 @@ class Collection
      * versionTracking | false | Determines if object updates should maintain the history.
      *
      * @param string $name The name of the collection
-     * @param \PDO $pdo The connection to the database
+     * @param \UA1Labs\Fire\Sql\Connector $pdo The connection to the database
      * @param array $options An array of options
      */
     public function __construct($name, Connector $connector, $options = null)

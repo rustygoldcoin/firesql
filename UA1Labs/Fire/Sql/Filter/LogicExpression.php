@@ -12,25 +12,25 @@
  * @copyright Copyright (c) UA1 Labs
  */
 
-namespace \US1Labs\Fire\Sql\Filter;
+namespace UA1Labs\Fire\Sql\Filter;
 
 /**
  * This class is meant to provide a bases for creating logic expresssions for
  * \UA1Labs\Fire\Sql\Filter.
  */
-class LogicExpression 
+class LogicExpression
 {
 
     /**
      * The type of expression AND, OR, WHERE.
-     * 
+     *
      * @var string
      */
     public $expression;
 
     /**
      * The property for which we are applying the expression to.
-     * 
+     *
      * @var string
      */
     public $prop;
@@ -43,14 +43,14 @@ class LogicExpression
 
     /**
      * The comparison type you would like to use.
-     * 
+     *
      * @var string
      */
     public $comparison;
 
     /**
      * The class constructor.
-     * 
+     *
      * @param string $propertyName
      */
     public function __construct($propertyName)
@@ -60,7 +60,7 @@ class LogicExpression
 
     /**
      * Sets the comparison of this expression to be EqualTo.
-     * 
+     *
      * @param mixed $value
      */
     public function eq($value)
@@ -71,7 +71,7 @@ class LogicExpression
 
     /**
      * Sets the comparison of this expression to be NotEqualTo.
-     * 
+     *
      * @param mixed $value
      */
     public function not($value)
@@ -82,7 +82,7 @@ class LogicExpression
 
     /**
      * Sets the comparison of this expression to be GreaterThan.
-     * 
+     *
      * @param mixed $value
      */
     public function gt($value)
@@ -93,7 +93,7 @@ class LogicExpression
 
     /**
      * Sets the comparison of this expression to be LessThan.
-     * 
+     *
      * @param mixed $value
      */
     public function lt($value)
@@ -104,7 +104,7 @@ class LogicExpression
 
     /**
      * Sets the comparison of this expression to be GreatThanOrEqualTo.
-     * 
+     *
      * @param mixed $value
      */
     public function gteq($value)
@@ -115,7 +115,7 @@ class LogicExpression
 
     /**
      * Sets the comparison of this expression to be LessThanOrEqualTo.
-     * 
+     *
      * @param mixed $value
      */
     public function lteq($value)

@@ -17,7 +17,7 @@ namespace UA1Labs\Fire;
 use \PDO;
 use \UA1Labs\Fire\Sql\Connector;
 use \UA1Labs\Fire\Sql\Collection;
-use \UA1Labs\Fire\Di;
+use \UA1Labs\Fire\Sql\Di;
 
 /**
  * The class responsible for being the entry point into connecting
@@ -29,28 +29,26 @@ class Sql
 
     /**
      * Array of collections as cached objects.
-     * 
+     *
      * @var array<\UA1Labs\Fire\Sql\Collection>
      */
     private $collections;
 
     /**
      * The connector class that stores the DB connection infomation.
-     * 
+     *
      * @var \UA1Labs\Fire\Sql\Connector
      */
     private $connector;
 
     /**
      * The class constructor.
-     * 
+     *
      * @param \PDO $pdo
      */
     public function __construct(PDO $pdo)
     {
-        $fireDi = new Di();
-        $this->connector = $fireDi->getWith(Connector::class, [$pdo]);
-        // $this->connector = new Connector($pdo);
+        $this->connector = new Connector($pdo);
         $this->collections = [];
     }
 
@@ -60,7 +58,7 @@ class Sql
      * [
      *     'versionTracking' => false
      * ]
-     * 
+     *
      * @param string $name The name of the collection
      * @param array $options The collection options
      * @return \UA1Labs\Fire\Sql\Collection
@@ -68,14 +66,7 @@ class Sql
     public function collection($name, $options = null)
     {
         if (!isset($this->collections[$name])) {
-            $fireDi = new Di();
-
-            // $this->collections[$name] = new Collection($name, $this->connector, $options);
-            $this->collections[$name] = $fireDi->getWith(Collection::class, [
-                $name,
-                $this->collector,
-                $options
-            ]);
+            $this->collections[$name] = new Collection($name, $this->connector, $options);
         }
 
         return $this->collections[$name];

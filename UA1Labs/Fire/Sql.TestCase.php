@@ -15,27 +15,56 @@
 namespace Test\UA1Labs\Fire;
 
 use \UA1Labs\Fire\Test\TestCase;
+use \UA1Labs\Fire\Sql;
+use \UA1Labs\Fire\Sql\Collection;
+use \UA1Labs\Fire\Di;
+use \PDO;
 
-/**
- * Exception class for FireSql Exceptions
- */
 class SqlTestCase extends TestCase
 {
 
+    /**
+     * Instance of FireDi
+     *
+     * @var \UA1Labs\Fire\Di
+     */
+    private $fireDi;
+
+    /**
+     * Instance of FireSql
+     *
+     * @var \UA1Labs\Fire\Sql
+     */
     private $fireSql;
+
+    public function setUp()
+    {
+        $this->fireDi = new Di();
+    }
+
+    public function tearDown()
+    {
+        unset($this->fireDi);
+        unset($this->fireSql);
+    }
 
     public function beforeEach()
     {
-        $this->fireSql = '';
+        $pdoMock = $this->getMockObject(PDO::class);
+        $this->fireSql = $this->fireDi->getWith(Sql::class, [$pdoMock]);
     }
 
-}
+    public function testConstruct()
+    {
+        $this->should('Have constructed an instance of FireSql without thrown an exception.');
+        $this->assert($this->fireSql instanceof Sql);
+    }
 
-/**
- * Mock Classes
- */
-
-class PDOMock extends PDO
-{
+    public function testCollection()
+    {
+        $this->should('Return a new collection object with the name of the collection I asked for.');
+        $collection = $this->fireSql->collection('MyCollection');
+        $this->assert($collection instanceof Collection);
+    }
 
 }
