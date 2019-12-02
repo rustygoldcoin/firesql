@@ -22,7 +22,9 @@
             "email": "development@ua1.us"
         }
     ],
-    "require": {},
+    "require": {
+        "php": ">7.1.0"
+    },
     "require-dev": {
         "ua1-labs/firetest": "2.*",
         "ua1-labs/firebug": "2.*",
