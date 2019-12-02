@@ -25,7 +25,6 @@ class FireSqlPanel extends Panel
 {
 
     const ID = 'firesql';
-    const NAME = 'FireSql Queries {{count}}';
 
     /**
      * An array of sql statement objects.
@@ -40,8 +39,12 @@ class FireSqlPanel extends Panel
     public function __construct()
     {
         $this->statements = [];
-        $template = __DIR__ . '/firesql.php';
-        parent::__construct(self::ID, self::NAME, $template);
+        parent::__construct(self::ID, 'FireSql Queries {{count}}', __DIR__ . '/firesql.php');
+        $this->setDescription(
+            'This panel shows all the Sql Statements that have been executed ' .
+            'by FireSql. The statements below include a stack trace and the amount ' .
+            'of time each statement took to execute.'
+        );
     }
 
     /**
@@ -70,7 +73,7 @@ class FireSqlPanel extends Panel
     public function render()
     {
         $statementCount = count($this->statements);
-        $this->setName(str_replace('{{count}}', '{' . $statementCount . '}', self::NAME));
+        $this->setName(str_replace('{{count}}', '{' . $statementCount . '}', $this->name));
         parent::render();
     }
 
