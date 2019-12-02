@@ -1,4 +1,8 @@
 # Release Changes
+
+* 3.0.1
+    * Update the render method logic in the sql debug panel to use $this->name instead of self::NAME.
+    * Added description to the firesql debug panel.
 * 3.0.0
     * Uplifting code to be in line with UA1 Labs 2.0 standards.
     * Added test cases.
