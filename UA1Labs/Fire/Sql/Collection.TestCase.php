@@ -18,6 +18,7 @@ use \UA1Labs\Fire\Test\TestCase;
 use \UA1Labs\Fire\Sql\Collection;
 use \UA1Labs\Fire\Sql\Connector;
 use \UA1Labs\Fire\Bug;
+use \UA1Labs\Fire\SqlException;
 use \PDO;
 
 class CollectionTestCase extends TestCase
@@ -61,6 +62,37 @@ class CollectionTestCase extends TestCase
     {
         $this->should('Have returned a collection object without thrown an exception.');
         $this->assert($this->collection instanceof Collection);
+        
+        $this->should('Have thrown an Exception when you try to configure the collection with an improper versionTracking setting.');
+        try {
+            $pdo = new PDO('sqlite:' . $this->demoDb);
+            $connector = new Connector($pdo);
+            $collection = new Collection('TestCollection1', $connector, ['versionTracking' => 1]);
+            $this->assert(false);
+        } catch (SqlException $e) {
+            $this->assert(true);
+        }
+
+        $this->should('Have thrown an Exception when you try to configure the collection with an improper model setting.');
+        try {
+            $pdo = new PDO('sqlite:' . $this->demoDb);
+            $connector = new Connector($pdo);
+            $collection = new Collection('TestCollection1', $connector, ['model' => 1]);
+            $this->assert(false);
+        } catch (SqlException $e) {
+            $this->assert(true);
+        }
+
+        $this->should('Have thrown an Exception when you try to configure the collection with a model that defines a class that does not exist.');
+        try {
+            $pdo = new PDO('sqlite:' . $this->demoDb);
+            $connector = new Connector($pdo);
+            $collection = new Collection('TestCollection1', $connector, ['model' => 'NoClass']);
+            $this->assert(false);
+        } catch (SqlException $e) {
+            $this->assert(true);
+        }
+
     }
 
     public function testInsert()
@@ -84,6 +116,25 @@ class CollectionTestCase extends TestCase
             && isset($final->__origin)
             && $final->__updated === $final->__origin
         );
+
+        $this->should('Return an object of the type that is configured for the collection, once an object is inserted into the collection.');
+        $pdo = new PDO('sqlite:' . $this->demoDb);
+        $connector = new Connector($pdo);
+        $collection = new Collection('MyCollection', $connector, ['model' => TestModel::class]);
+        $response = $collection->insert(new TestModel());
+        $this->assert($response instanceof TestModel);
+
+        $this->should('Throw an exception when you try to insert an object that does not match the collection model type.');
+        $pdo = new PDO('sqlite:' . $this->demoDb);
+        $connector = new Connector($pdo);
+        $collection = new Collection('MyCollection', $connector, ['model' => TestModel::class]);
+        try {
+            $response = $collection->insert((object) []);
+            $this->assert(false);
+        } catch (SqlException $e) {
+            $this->assert(true);
+        }
+
     }
 
     public function testUpdate()
@@ -105,6 +156,18 @@ class CollectionTestCase extends TestCase
 
         $this->should('Have a different revision number than the origin');
         $this->assert($origin->__revision !== $updated->__revision);
+
+        $this->should('Throw an exception when you try to update an object that does not match the collection model type.');
+        $pdo = new PDO('sqlite:' . $this->demoDb);
+        $connector = new Connector($pdo);
+        $collection = new Collection('MyCollection', $connector, ['model' => TestModel::class]);
+        $object = $collection->insert(new TestModel());
+        try {
+            $response = $collection->update($object->__id, (object) []);
+            $this->assert(false);
+        } catch (SqlException $e) {
+            $this->assert(true);
+        }
     }
 
     public function testDelete()
@@ -179,6 +242,13 @@ class CollectionTestCase extends TestCase
         $this->should('Return a correct response for a query with an OR statement that is only half true.');
         $response = $this->collection->find('[{"odd": true},{"i": 10}]');
         $this->assert(count($response) === 3);
+        
+        $this->should('Return a collection of objects that have a type of the model we set in the options.');
+        $pdo = new PDO('sqlite:' . $this->demoDb);
+        $connector = new Connector($pdo);
+        $collection = new Collection('MyCollection', $connector, ['model' => TestModel::class]);
+        $response = $collection->find('{"i": 2, "odd": false}');
+        $this->assert($response[0] instanceof TestModel);
     }
 
     public function testCount()
@@ -193,3 +263,6 @@ class CollectionTestCase extends TestCase
     }
 
 }
+
+class TestModel
+{}

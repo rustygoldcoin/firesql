@@ -18,6 +18,7 @@ use \DateTime;
 use \UA1Labs\Fire\Sql\Statement;
 use \UA1Labs\Fire\Sql\Filter;
 use \UA1Labs\Fire\Sql\Connector;
+use \UA1Labs\Fire\SqlException;
 
 /**
  * The class that represents a collection. With the functionality built into this class
@@ -52,6 +53,7 @@ class Collection
      *
      * Default $options:
      * versionTracking | false | Determines if object updates should maintain the history.
+     * model | null | Provides the type of objects FireSql should be returning. If null FireSql will map objects to stdClass.
      *
      * @param string $name The name of the collection
      * @param \UA1Labs\Fire\Sql\Connector $pdo The connection to the database
@@ -63,7 +65,8 @@ class Collection
         $this->name = $name;
 
         $defaultOptions = [
-            'versionTracking' => false
+            'versionTracking' => false,
+            'model' => null
         ];
 
         if ($options) {
@@ -75,6 +78,8 @@ class Collection
         } else {
             $this->options = (object) $defaultOptions;
         }
+        
+        $this->validateOptions();
 
         $createTables = Statement::get('CREATE_DB_TABLES', [
             '@collection' => $this->name
@@ -289,7 +294,13 @@ class Collection
             );
             $record = $this->connector->query($select)->fetch();
             if ($record) {
-                return json_decode($record['obj']);
+                $object = json_decode($record['obj']);
+                if ($this->options->model) {
+                    $model = new $this->options->model();
+                    return $this->mergeObjects($model, $object);
+                }
+
+                return $object;
             }
         }
         return null;
@@ -482,6 +493,7 @@ class Collection
      */
     private function upsert($object, $id = null)
     {
+        $this->validateObjectType($object);
         $object = $this->writeObjectToDb($object, $id);
         $this->updateObjectIndexes($object);
         $this->commitObject($object->__id, $object->__revision);
@@ -521,6 +533,11 @@ class Collection
             ]
         );
         $this->connector->exec($insert);
+        if ($this->options->model) {
+            $model = new $this->options->model();
+            return $this->mergeObjects($model, $object);
+        }
+
         return $object;
     }
 
@@ -606,6 +623,80 @@ class Collection
             return (int) $count[0];
         } else {
             return 0;
+        }
+    }
+    
+    /**
+     * Deep merges two objects. $obj2 will get merged onto $obj1
+     * and $obj1 will be returned. Keeping the context of the original object.
+     *
+     * @param object $obj1
+     * @param object $obj2
+     * @return object The merged objects
+     */
+    private function mergeObjects($obj1, $obj2) {
+        if (is_object($obj2)) {
+            $keys = array_keys(get_object_vars($obj2));
+            foreach ($keys as $key) {
+                if (
+                    isset($obj1->{$key})
+                    && is_object($obj1->{$key})
+                    && is_object($obj2->{$key})
+                ) {
+                    $obj1->{$key} = $this->mergeObjects($obj1->{$key}, $obj2->{$key});
+                } elseif (isset($obj1->{$key})
+                && is_array($obj1->{$key})
+                && is_array($obj2->{$key})) {
+                    $obj1->{$key} = $this->mergeObjects($obj1->{$key}, $obj2->{$key});
+                } else {
+                    $obj1->{$key} = $obj2->{$key};
+                }
+            }
+        } elseif (is_array($obj2)) {
+            if (
+                is_array($obj1)
+                && is_array($obj2)
+            ) {
+                $obj1 = array_unique(array_merge_recursive($obj1, $obj2), SORT_REGULAR);
+            } else {
+                $obj1 = $obj2;
+            }
+        }
+
+        return $obj1;
+    }
+    
+    /**
+     * This method contains the logic needed to validate collection options that
+     * were configured.
+     *
+     * @throws \UA1Labs\Fire\SqlException If any options are not valid
+     */
+    private function validateOptions()
+    {
+        if (!is_bool($this->options->versionTracking)) {
+            throw new SqlException('When setting options for the collection "' . $this->name . '" the option for "versionTracking" must be boolean.');
+        }
+        
+        if (isset($this->options->model) && (!is_string($this->options->model) || !class_exists($this->options->model))) {
+            throw new SqlException('When setting options for the collection "' . $this->name . '" the option for "model" did not resolve to a class.');
+        }
+    }
+
+    /**
+     * Validates that the object is the property type based on the 'model' option that this collection
+     * was set for.
+     *
+     * @param object $object The object to validate
+     * @throws \UA1Labs\Fire\SqlException If the object type doesn't match the model type set
+     */
+    private function validateObjectType($object)
+    {
+        if (
+            $this->options->model 
+            && !($object instanceof $this->options->model)
+        ) {
+            throw new SqlException('The object must be of type "' . $this->options->model . '".');
         }
     }
 }

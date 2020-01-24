@@ -56,7 +56,8 @@ class Sql
      * Returns a collection object that will allow you to interact with the collection data.
      * Default $options:
      * [
-     *     'versionTracking' => false
+     *     'versionTracking' => false,
+     *     'model' => null
      * ]
      *
      * @param string $name The name of the collection

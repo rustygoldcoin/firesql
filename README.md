@@ -42,7 +42,8 @@ When obtaining a collection, you do not need to register it. Simply by asking fo
 When asking for a collection, you have the ability to pass in options that will allow the collection to enable certain features for that collection.
 
     $options = [
-        'versionTracking' => true
+        'versionTracking' => true,
+        'model' => 'MyCollectionModel'
     ];
     $collection = $db->collection('CollectionName', $options);
 
@@ -51,6 +52,7 @@ When asking for a collection, you have the ability to pass in options that will 
 | Option | Description | Value Type | Default Value |
 | - | - | - | - |
 | versionTracking | Turns on version tracking for objects within the collection. So whenever an object is updated or deleted, there will always be a trail of all past values for the objects within the collection. | boolean | false |
+| model | Will set the object type the collection represents. When you set this option, whenever you insert or update objects, if the object isn't of the type you set a SqlException will be thrown. Also, when you retrieve objects, you'll get back the appropriate object type. | string or null | null |
 
 ### Inserting Your First Object
 
